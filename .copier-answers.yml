@@ -1,0 +1,10 @@
+# Changes here will be overwritten by Copier
+_commit: 0.30.13
+_src_path: bot-template
+add_fsm: true
+add_worker: true
+bot_description: TODO
+bot_display_name: Service Desk Bot
+bot_project_name: service-desk-bot
+from_ccsteam: true
+
