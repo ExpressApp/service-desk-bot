@@ -2,7 +2,6 @@ from http import HTTPStatus
 from typing import Dict
 from uuid import UUID
 
-import httpx
 import respx
 from fastapi.testclient import TestClient
 from pybotx import Bot
@@ -35,10 +34,15 @@ def test__web_app__bot_status_response_ok(
         "result": {
             "commands": [
                 {
-                    "body": "/help",
-                    "description": "Get available commands",
-                    "name": "/help",
-                }
+                    "body": "/справка",
+                    "description": "справка по командам",
+                    "name": "/справка",
+                },
+                {
+                    "body": "/обращение",
+                    "description": "оформить обращение в поддержку",
+                    "name": "/обращение",
+                },
             ],
             "enabled": True,
             "status_message": "Bot is working",
@@ -93,89 +97,6 @@ def test__web_app__bot_status_without_parameters_response_bad_request(
 
     status_message = response.json()["error_data"]["status_message"]
     assert status_message == "Invalid params"
-
-
-@respx.mock
-def test__web_app__bot_command_response_accepted(
-    bot_id: UUID,
-    host: str,
-    bot: Bot,
-) -> None:
-    # - Arrange -
-    direct_notification_endpoint = respx.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
-    )
-
-    command_payload = {
-        "bot_id": str(bot_id),
-        "command": {
-            "body": "/debug",
-            "command_type": "user",
-            "data": {},
-            "metadata": {},
-        },
-        "attachments": [],
-        "async_files": [],
-        "entities": [],
-        "source_sync_id": None,
-        "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
-        "from": {
-            "ad_domain": None,
-            "ad_login": None,
-            "app_version": None,
-            "chat_type": "chat",
-            "device": None,
-            "device_meta": {
-                "permissions": None,
-                "pushes": False,
-                "timezone": "Europe/Moscow",
-            },
-            "device_software": None,
-            "group_chat_id": "30dc1980-643a-00ad-37fc-7cc10d74e935",
-            "host": "cts.example.com",
-            "is_admin": True,
-            "is_creator": True,
-            "locale": "en",
-            "manufacturer": None,
-            "platform": None,
-            "platform_package_id": None,
-            "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
-            "username": None,
-        },
-        "proto_version": 4,
-    }
-
-    callback_payload = {
-        "status": "ok",
-        "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
-        "result": {},
-    }
-
-    # - Act -
-    with TestClient(get_application()) as test_client:
-        command_response = test_client.post(
-            "/command",
-            json=command_payload,
-        )
-
-        callback_response = test_client.post(
-            "/notification/callback",
-            json=callback_payload,
-        )
-
-    # - Assert -
-    assert command_response.status_code == HTTPStatus.ACCEPTED
-    assert direct_notification_endpoint.called
-    assert callback_response.status_code == HTTPStatus.ACCEPTED
-    assert callback_response.json() == {"result": "accepted"}
 
 
 @respx.mock

@@ -11,11 +11,12 @@ from pybotx import (
     ChatCreatedMember,
     ChatTypes,
     IncomingMessage,
+    OutgoingMessage,
     UserKinds,
 )
 
 
-async def test_default_message_handler(
+async def test__default_message_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
 ) -> None:
@@ -26,10 +27,23 @@ async def test_default_message_handler(
     await bot.async_execute_bot_command(message)
 
     # - Assert -
-    bot.answer_message.assert_awaited_once_with("Hello!")  # type: ignore
+    bot.send.assert_awaited_once_with(  # type: ignore
+        message=OutgoingMessage(
+            bot_id=message.bot.id,
+            chat_id=message.chat.id,
+            body=(
+                "Если у Вас возникли сложности в работе приложения eXpress, "
+                "с моей помощью Вы сможете быстро отправить обращение "
+                "на почту технической поддержки."
+            ),
+            bubbles=BubbleMarkup(
+                [[Button(command="/обращение", label="Оформить новое обращение")]]
+            ),
+        )
+    )
 
 
-async def test_chat_created_handler(
+async def test__chat_created_handler(
     bot: Bot,
     bot_id: UUID,
     host: str,
@@ -70,30 +84,48 @@ async def test_chat_created_handler(
     # - Assert -
     bot.answer_message.assert_awaited_once_with(  # type: ignore
         (
-            "Вас приветствует Service Desk Bot!\n\n"
-            "Для более подробной информации нажмите кнопку `/help`"
+            "Вас приветствует Помощник технической поддержки приложения eXpress!\n\n"
+            "С моей помощью Вы можете отправить обращение "
+            "в адрес технической поддержки.\n"
+            "Для начала работы нажмите на кнопку ниже."
         ),
-        bubbles=BubbleMarkup([[Button(command="/help", label="/help")]]),
+        bubbles=BubbleMarkup(
+            [[Button(command="/обращение", label="Оформить новое обращение")]]
+        ),
     )
 
 
-async def test_help_handler(
+async def test__help_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
 ) -> None:
     # - Arrange -
-    message = incoming_message_factory(body="/help")
+    message = incoming_message_factory(body="/справка")
 
     # - Act -
     await bot.async_execute_bot_command(message)
 
     # - Assert -
-    bot.answer_message.assert_awaited_once_with(  # type: ignore
-        "`/help` -- Get available commands"
+    bot.send.assert_awaited_once_with(  # type: ignore
+        message=OutgoingMessage(
+            bot_id=message.bot.id,
+            chat_id=message.chat.id,
+            body=(
+                "Если у Вас возникли сложности в работе приложения eXpress, "
+                "с моей помощью Вы можете быстро отправить обращение на "
+                "почту технической поддержки\n\n"
+                "**Справка по командам:**\n\n"
+                "**/обращение - оформить обращение в поддержку**\n\n"
+                "**/справка - справка по командам**"
+            ),
+            bubbles=BubbleMarkup(
+                [[Button(command="/обращение", label="Оформить новое обращение")]]
+            ),
+        )
     )
 
 
-async def test_git_commit_sha_handler(
+async def test__git_commit_sha_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
 ) -> None:

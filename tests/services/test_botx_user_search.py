@@ -7,7 +7,7 @@ from pybotx import Bot, UserFromSearch, UserKinds, UserNotFoundError
 from app.services.botx_user_search import UserIsBotError, search_user_on_each_cts
 
 
-async def test_search_user_on_each_cts_user_is_bot_error_raised(
+async def test__search_user_on_each_cts__user_is_bot_error_raised(
     bot: Bot,
 ) -> None:
     # - Arrange -
@@ -31,7 +31,7 @@ async def test_search_user_on_each_cts_user_is_bot_error_raised(
         await search_user_on_each_cts(bot, UUID("86c4814b-feee-4ff0-b04d-4b3226318078"))
 
 
-async def test_search_user_on_each_cts_not_found(
+async def test__search_user_on_each__cts_not_found(
     bot: Bot,
 ) -> None:
     # - Arrange -
@@ -48,7 +48,7 @@ async def test_search_user_on_each_cts_not_found(
     assert search_result is None
 
 
-async def test_search_user_on_each_cts_suceed(
+async def test__search_user_on_each_cts(
     bot: Bot,
 ) -> None:
     # - Arrange -

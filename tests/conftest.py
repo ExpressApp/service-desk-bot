@@ -1,6 +1,6 @@
 import logging
 from http import HTTPStatus
-from typing import Any, AsyncGenerator, Callable, Generator, List, Optional
+from typing import Any, AsyncGenerator, Callable, Generator
 from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
 
@@ -10,15 +10,20 @@ import respx
 from alembic import config as alembic_config
 from asgi_lifespan import LifespanManager
 from pybotx import (
+    AttachmentTypes,
     Bot,
     BotAccount,
     Chat,
     ChatTypes,
     IncomingMessage,
+    MentionList,
     UserDevice,
     UserSender,
+    lifespan_wrapper,
 )
 from pybotx.logger import logger
+from pybotx.models.attachments import AttachmentDocument, IncomingFileAttachment
+from pybotx_fsm import FSM
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.caching.redis_repo import RedisRepo
@@ -33,8 +38,13 @@ def db_migrations() -> Generator:
     alembic_config.main(argv=["downgrade", "base"])
 
 
+@pytest.fixture
+def default_string() -> str:
+    return "lorem ipsum"
+
+
 @pytest.hookimpl(trylast=True)
-def pytest_collection_modifyitems(items: List[pytest.Function]) -> None:
+def pytest_collection_modifyitems(items: list[pytest.Function]) -> None:
     # We can't use autouse, because it appends fixture to the end
     # but session from db_session fixture must be closed before migrations downgrade
     for item in items:
@@ -45,6 +55,20 @@ def pytest_collection_modifyitems(items: List[pytest.Function]) -> None:
 async def db_session(bot: Bot) -> AsyncGenerator[AsyncSession, None]:
     async with bot.state.db_session_factory() as session:
         yield session
+
+
+@pytest.fixture()
+async def fsm_session(
+    bot: Bot,
+    incoming_message_factory: Callable[..., IncomingMessage],
+) -> AsyncGenerator[FSM, None]:
+    message = incoming_message_factory()
+    fsm_session = FSM(bot.state.redis_repo, message)
+
+    async with lifespan_wrapper(bot):
+        yield fsm_session
+
+    await fsm_session.drop_state()
 
 
 @pytest.fixture
@@ -76,6 +100,7 @@ async def bot(
         built_bot = fastapi_app.state.bot
 
         built_bot.answer_message = AsyncMock(return_value=uuid4())
+        built_bot.send = AsyncMock(return_value=uuid4())
 
         yield built_bot
 
@@ -96,6 +121,17 @@ def user_huid() -> UUID:
 
 
 @pytest.fixture
+def incoming_attachment() -> AttachmentDocument:
+    return AttachmentDocument(
+        type=AttachmentTypes.DOCUMENT,
+        filename="attachment.txt",
+        size=42,
+        content=b"some content",
+        is_async_file=False,
+    )
+
+
+@pytest.fixture
 def incoming_message_factory(
     bot_id: UUID,
     user_huid: UUID,
@@ -104,8 +140,12 @@ def incoming_message_factory(
     def factory(
         *,
         body: str = "",
-        ad_login: Optional[str] = None,
-        ad_domain: Optional[str] = None,
+        data: dict | None = None,
+        file: IncomingFileAttachment | None = None,
+        mentions: MentionList | None = None,
+        source_sync_id: UUID | None = None,
+        ad_login: str | None = None,
+        ad_domain: str | None = None,
     ) -> IncomingMessage:
         return IncomingMessage(
             bot=BotAccount(
@@ -113,10 +153,12 @@ def incoming_message_factory(
                 host=host,
             ),
             sync_id=uuid4(),
-            source_sync_id=None,
+            source_sync_id=source_sync_id,
             body=body,
-            data={},
+            data=data or {},
+            file=file,
             metadata={},
+            mentions=mentions or MentionList(),
             sender=UserSender(
                 huid=user_huid,
                 udid=None,
@@ -139,7 +181,7 @@ def incoming_message_factory(
                 ),
             ),
             chat=Chat(
-                id=uuid4(),
+                id=UUID("338dc685-efd7-49ba-ac64-7bcb38fdf099"),
                 type=ChatTypes.PERSONAL_CHAT,
             ),
             raw_command=None,

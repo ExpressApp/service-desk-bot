@@ -35,6 +35,7 @@ saq = { version = "~0.7.1", extras = ["hiredis"] }
 importlib-resources = { version = "^5.4.0", python = "<3.9" }
 zipp = { version = "^3.7.0", python = "<3.9" }
 importlib-metadata = { version = "^4.11.0", python = "<3.9" }
+types-aiofiles = "^23.1.0.4"
 
 
 [tool.poetry.dev-dependencies]
