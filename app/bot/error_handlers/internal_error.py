@@ -19,7 +19,7 @@ async def internal_error_handler(
 
     is_bot_active = not isinstance(exc, BotShuttingDownError)
     await bot.answer_message(
-        strings.SOMETHING_GOES_WRONG.format(error_uuid=error_uuid),
+        strings.SOMETHING_GOES_WRONG_MESSAGE,
         # We can't receive callback when bot is shutting down
         wait_callback=is_bot_active,
     )

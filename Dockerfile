@@ -35,6 +35,7 @@ RUN poetry install --only main
 
 COPY alembic.ini .
 COPY app app
+RUN mkdir ./attachments
 
 ARG CI_COMMIT_SHA=""
 ENV GIT_COMMIT_SHA=${CI_COMMIT_SHA}

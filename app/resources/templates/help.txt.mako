@@ -1,5 +1,8 @@
-Справка по командам:
+Если у Вас возникли сложности в работе приложения ${ app_name }, с моей помощью Вы можете быстро отправить обращение на почту технической поддержки
 
-% for name, description in commands:
-`${ name }` - ${ description }
+**Справка по командам:**
+
+% for command, description in commands:
+**${ command } - ${ description }**
+
 % endfor
