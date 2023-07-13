@@ -50,7 +50,9 @@ class HiddenCommands:
     SEND_SUPPORT_REQUEST_COMMAND = HiddenCommand(
         command=strings.CONFIRM_REQUEST_COMMAND
     )
-    REFUSE_REQUEST_COMMAND = HiddenCommand(command=strings.REFUSE_REQUEST_COMMAND)
+    UPDATE_SUPPORT_REQUEST_COMMAND = HiddenCommand(
+        command=strings.UPDATE_REQUEST_COMMAND
+    )
     CONFIRM_ATTACHMENT_ADDITION_COMMAND = HiddenCommand(
         command=strings.CONFIRM_ATTACHMENT_ADDITION_COMMAND
     )
@@ -58,3 +60,7 @@ class HiddenCommands:
         command=strings.REFUSE_ATTACHMENT_ADDITION_COMMAND
     )
     SKIP_COMMAND = HiddenCommand(command=strings.SKIP_COMMAND)
+    UPDATE_DESCRIPTION_COMMAND = HiddenCommand(
+        command=strings.UPDATE_DESCRIPTION_COMMAND
+    )
+    UPDATE_ATTACHMENT_COMMAND = HiddenCommand(command=strings.UPDATE_ATTACHMENT_COMMAND)
