@@ -4,6 +4,7 @@ from pathlib import Path
 from pybotx.models.attachments import AttachmentDocument
 
 from app.db.repositories.service_desk import ServiceDeskRepo
+from app.schemas.support_request import RequestAttachment
 
 
 async def test__delete_user_attachments(
@@ -89,6 +90,7 @@ async def test__get_user_attachments_names__empty_directory(
     received_names = service_desk_repo.get_user_attachments_names()
 
     # - Assert -
+    assert isinstance(received_names, list)
     assert not received_names
 
 
@@ -169,3 +171,29 @@ async def test__is_valid_attachment__invalid_attachment_size(
 
     # - Assert -
     assert not is_valid
+
+
+async def test__get_user_attachments(
+    service_desk_repo: ServiceDeskRepo,
+    user_attachments_path: Path,
+) -> None:
+    # - Act -
+    received_attachments = await service_desk_repo.get_user_attachments()
+
+    # - Assert -
+    assert received_attachments == [
+        RequestAttachment(name="default.txt", data=b"some content")
+    ]
+
+
+async def test__get_user_attachments__empty_directory(
+    service_desk_repo: ServiceDeskRepo,
+    user_attachments_path: Path,
+    clear_attachments: None,
+) -> None:
+    # - Act -
+    received_attachments = await service_desk_repo.get_user_attachments()
+
+    # - Assert -
+    assert isinstance(received_attachments, list)
+    assert not received_attachments

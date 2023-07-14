@@ -39,8 +39,7 @@ lookup = TemplateFormatterLookup(
     strict_undefined=True,
 )
 
-# app info:
-APP_NAME = "eXpress"
+# bot info:
 BOT_PROJECT_NAME = "service-desk-bot"
 BOT_DISPLAY_NAME = "Service Desk Bot"
 
@@ -54,6 +53,7 @@ MAX_DESCRIPTION_LENGTH_EXCEEDED_TEMPLATE = lookup.get_template(
 )
 CONFIRM_REQUEST_TEMPLATE = lookup.get_template("confirm_request.txt.mako")
 EXISTING_ATTACHMENTS_TEMPLATE = lookup.get_template("existing_attachments.txt.mako")
+MAIL_BODY_TEMPLATE = lookup.get_template("mail_body.txt.mako")
 
 # commands:
 CREATE_SUPPORT_REQUEST_COMMAND = "/обращение"
@@ -61,8 +61,8 @@ HELP_COMMAND = "/справка"
 CANCEL_COMMAND = "/cancel"
 CONFIRM_CANCEL_COMMAND = "/confirm-cancel"
 REFUSE_CANCEL_COMMAND = "/refuse-cancel"
-SEND_SUPPORT_REQUEST_COMMAND = "/send-request"
-CONFIRM_REQUEST_COMMAND = "/confirm-request"
+SEND_REQUEST_COMMAND = "/send-request"
+SEND_TO_CONFIRM_COMMAND = "/send-to-confirm"
 UPDATE_REQUEST_COMMAND = "/update-request"
 CONFIRM_ATTACHMENT_ADDITION_COMMAND = "/confirm-attachment-addition"
 REFUSE_ATTACHMENT_ADDITION_COMMAND = "/refuse-attachment-addition"
@@ -143,4 +143,14 @@ ENTER_NEW_DESCRIPTION_MESSAGE = "".join(
     "и какой результат получаете.\n\n"
     "⚡ От полноты описания будет зависеть скорость решения Вашего обращения.\n\n"
     "📱 Обращение должно быть отправлено с устройства, где возникла проблема."
+)
+
+SUCCESS_SEND_MESSAGE = "".join(
+    (
+        "Ваше обращение отправлено.\n"
+        "В случае необходимости получения дополнительной информации, "
+        "с Вами свяжется специалист службы технической поддержки.\n"
+        "Уведомление о решении обращения будет направлено Вам на электронную почту "
+        f"или персональным сообщением в {settings.APP_NAME}."
+    )
 )

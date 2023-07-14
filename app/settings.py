@@ -1,11 +1,13 @@
 """Application settings."""
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from pybotx import BotAccountWithSecret
-from pydantic import BaseSettings, ByteSize, validator
+from pydantic import BaseSettings, ByteSize, EmailStr, SecretStr, validator
+
+from app.schemas.enums import AuthMethods
 
 
 class AppSettings(BaseSettings):  # noqa: WPS338
@@ -23,6 +25,9 @@ class AppSettings(BaseSettings):  # noqa: WPS338
     # https://github.com/samuelcolvin/pydantic/issues/1458
     # User huids for debug
     SMARTLOG_DEBUG_HUIDS: Any
+
+    # app info:
+    APP_NAME: str = "eXpress"
 
     # database:
     POSTGRES_DSN: str
@@ -42,6 +47,16 @@ class AppSettings(BaseSettings):  # noqa: WPS338
 
     # storage:
     USERS_ATTACHMENTS_DIR = Path("./attachments")
+
+    # exchange:
+    MAIL_SERVER: str
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: SecretStr
+    SENDER_EMAIL: EmailStr
+    RECIPIENT_EMAIL: EmailStr
+    AUTH_METHOD: AuthMethods = AuthMethods.BASIC
+    VERIFY_SSL: bool = False
+    ACCESS_TYPE: Literal["delegate", "impersonation"] = "delegate"
 
     @classmethod
     def _build_credentials_from_string(

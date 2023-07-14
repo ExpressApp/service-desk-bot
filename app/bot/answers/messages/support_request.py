@@ -152,3 +152,12 @@ def build_enter_new_description_message(message: IncomingMessage) -> OutgoingMes
         body=strings.ENTER_NEW_DESCRIPTION_MESSAGE,
         keyboard=get_cancel_keyboard(),
     )
+
+
+def build_success_send_message(message: IncomingMessage) -> OutgoingMessage:
+    return OutgoingMessage(
+        bot_id=message.bot.id,
+        chat_id=message.chat.id,
+        body=strings.SUCCESS_SEND_MESSAGE,
+        bubbles=get_default_bubbles(),
+    )

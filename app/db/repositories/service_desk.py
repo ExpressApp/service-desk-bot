@@ -5,9 +5,11 @@ from contextlib import suppress
 from pathlib import Path
 from uuid import UUID
 
+import aiofiles
 from aiofiles import os as aioos
 from pybotx import AttachmentDocument
 
+from app.schemas.support_request import RequestAttachment
 from app.settings import settings
 
 
@@ -19,23 +21,23 @@ class ServiceDeskRepo:  # noqa: WPS338
     async def delete_user_attachments(self) -> None:
         """Delete all user attachments by user_huid from local storage."""
 
-        user_path_dir = settings.USERS_ATTACHMENTS_DIR.joinpath(self._sender_huid)
+        user_dir = settings.USERS_ATTACHMENTS_DIR.joinpath(self._sender_huid)
 
         with suppress(FileNotFoundError):
-            for user_path_file in user_path_dir.iterdir():
+            for user_path_file in user_dir.iterdir():
                 await aioos.remove(user_path_file)
 
-            await aioos.rmdir(user_path_dir)
+            await aioos.rmdir(user_dir)
 
     def add_user_attachment(
         self, user_attachment: AttachmentDocument  # type: ignore
     ) -> None:
         """Add user attachment by user_huid to local storage."""
 
-        user_path_dir = settings.USERS_ATTACHMENTS_DIR.joinpath(self._sender_huid)
-        user_path_attachment = user_path_dir.joinpath(user_attachment.filename)
+        user_dir = settings.USERS_ATTACHMENTS_DIR.joinpath(self._sender_huid)
+        user_path_attachment = user_dir.joinpath(user_attachment.filename)
 
-        user_path_dir.mkdir(exist_ok=True)
+        user_dir.mkdir(exist_ok=True)
 
         if user_path_attachment.exists():
             user_path_attachment = self._get_new_attachment_name(user_path_attachment)
@@ -43,13 +45,29 @@ class ServiceDeskRepo:  # noqa: WPS338
         with user_path_attachment.open("wb") as file_w:
             file_w.write(user_attachment.content)
 
+    async def get_user_attachments(self) -> list[RequestAttachment]:
+        """Return all user attachments by user_huid from local storage."""
+        user_dir = settings.USERS_ATTACHMENTS_DIR.joinpath(self._sender_huid)
+        user_attachments = []
+
+        with suppress(FileNotFoundError):
+            for path_to_attachment in user_dir.iterdir():
+                async with aiofiles.open(path_to_attachment, "rb") as file_object:
+                    user_attachment = await RequestAttachment.from_aiofile(
+                        aiofile=file_object, attachment_name=path_to_attachment.name
+                    )
+
+                user_attachments.append(user_attachment)
+
+        return user_attachments
+
     def get_user_attachments_names(self) -> list[str]:
         """Return user attachments names."""
 
-        user_path_dir = settings.USERS_ATTACHMENTS_DIR.joinpath(self._sender_huid)
+        user_dir = settings.USERS_ATTACHMENTS_DIR.joinpath(self._sender_huid)
 
         try:
-            return sorted(user_file.name for user_file in user_path_dir.iterdir())
+            return sorted(user_file.name for user_file in user_dir.iterdir())
         except FileNotFoundError:
             return []
 
@@ -71,22 +89,20 @@ class ServiceDeskRepo:  # noqa: WPS338
     def _get_user_attachments_count(self) -> int:
         """Return user attachments count."""
 
-        user_path_dir = settings.USERS_ATTACHMENTS_DIR.joinpath(self._sender_huid)
+        user_dir = settings.USERS_ATTACHMENTS_DIR.joinpath(self._sender_huid)
 
         try:
-            return len(list(user_path_dir.iterdir()))
+            return len(list(user_dir.iterdir()))
         except FileNotFoundError:
             return 0
 
     def _get_user_attachments_size(self) -> int:
         """Return user attachments total size."""
 
-        user_path_dir = settings.USERS_ATTACHMENTS_DIR.joinpath(self._sender_huid)
+        user_dir = settings.USERS_ATTACHMENTS_DIR.joinpath(self._sender_huid)
 
         try:
-            return sum(
-                user_file.stat().st_size for user_file in user_path_dir.iterdir()
-            )
+            return sum(user_file.stat().st_size for user_file in user_dir.iterdir())
         except FileNotFoundError:
             return 0
 

@@ -123,7 +123,7 @@ async def add_new_attachment_handler(  # noqa: WPS213
 
     if command in {  # noqa: WPS337
         HiddenCommands.SKIP_COMMAND.command,
-        HiddenCommands.SEND_SUPPORT_REQUEST_COMMAND.command,
+        HiddenCommands.SEND_TO_CONFIRM_COMMAND.command,
     }:
         if command == HiddenCommands.SKIP_COMMAND.command:
             await service_desk_repo.delete_user_attachments()
