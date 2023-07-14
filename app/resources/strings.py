@@ -63,18 +63,22 @@ CONFIRM_CANCEL_COMMAND = "/confirm-cancel"
 REFUSE_CANCEL_COMMAND = "/refuse-cancel"
 SEND_SUPPORT_REQUEST_COMMAND = "/send-request"
 CONFIRM_REQUEST_COMMAND = "/confirm-request"
-REFUSE_REQUEST_COMMAND = "/refuse-request"
+UPDATE_REQUEST_COMMAND = "/update-request"
 CONFIRM_ATTACHMENT_ADDITION_COMMAND = "/confirm-attachment-addition"
 REFUSE_ATTACHMENT_ADDITION_COMMAND = "/refuse-attachment-addition"
 SKIP_COMMAND = "/skip"
+UPDATE_DESCRIPTION_COMMAND = "/update-description"
+UPDATE_ATTACHMENT_COMMAND = "/update-attachment"
 
 # labels:
 CREATE_SUPPORT_REQUEST_COMMAND_LABEL = "Оформить новое обращение"
 CANCEL_COMMAND_LABEL = "ОТМЕНА"
-CONFIRM_COMMAND_LABEL = "Да"
-REFUSE_COMMAND_LABEL = "Нет"
+YES_LABEL = "Да"
+NO_LABEL = "Нет"
 SEND_SUPPORT_REQUEST_COMMAND_LABEL = "Отправить обращение"
 SKIP_COMMAND_LABEL = "Пропустить"
+UPDATE_DESCRIPTION_COMMAND_LABEL = "Описание проблемы"
+UPDATE_ATTACHMENT_COMMAND_LABEL = "Файлы"
 
 # descriptions:
 CREATE_SUPPORT_REQUEST_COMMAND_DESCRIPTION = "оформить обращение в поддержку"
@@ -132,4 +136,11 @@ TEXT_INSTEAD_ATTACHMENT_MESSAGE = "".join(
         "Если вы хотите изменить тему или описание обращения, нажмите кнопку",
         ' "Отмена" и оформите обращение заново.',
     )
+)
+SELECT_UPDATING_ATTRIBUTE_MESSAGE = "Какое поле в обращении Вы хотите изменить?"
+ENTER_NEW_DESCRIPTION_MESSAGE = "".join(
+    "❗ Опишите подробно возникшую проблему, укажите какие действия Вы выполняете "
+    "и какой результат получаете.\n\n"
+    "⚡ От полноты описания будет зависеть скорость решения Вашего обращения.\n\n"
+    "📱 Обращение должно быть отправлено с устройства, где возникла проблема."
 )

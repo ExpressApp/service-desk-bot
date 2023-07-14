@@ -68,7 +68,7 @@ async def enter_support_request_description_handler(
     support_request: SupportRequestInCreation = (
         message.state.fsm_storage.support_request
     )
-    support_request.description = message.body
+    support_request.description = description
 
     attachment = message.file
 
@@ -145,7 +145,7 @@ async def wait_decision_on_attachment_handler(
 
 @fsm.on(CreateSupportRequestStates.ADD_ATTACHMENT)
 async def add_attachment_handler(message: IncomingMessage, bot: Bot) -> None:
-    """Add request attachment and switch to next state (FSM)."""
+    """Add request attachments and drop state (FSM)."""
 
     command = message.body
     attachment = message.file
@@ -163,6 +163,9 @@ async def add_attachment_handler(message: IncomingMessage, bot: Bot) -> None:
         if command == HiddenCommands.SKIP_COMMAND.command:
             await service_desk_repo.delete_user_attachments()
 
+        support_request.attachments_names = (
+            service_desk_repo.get_user_attachments_names()
+        )
         await bot.send(
             message=build_confirm_request_message(message, request=support_request)
         )

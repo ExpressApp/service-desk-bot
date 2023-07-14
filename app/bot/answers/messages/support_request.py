@@ -7,13 +7,17 @@ from app.bot.answers.bubbles.support_request import (
     get_confirm_attachment_addition_bubbles,
     get_confirm_cancel_bubbles,
     get_confirm_request_bubbles,
+    get_select_attribute_bubbles,
     get_send_request_bubbles,
     get_skip_bubbles,
 )
 from app.bot.answers.keyboards.common import get_cancel_keyboard
 from app.bot.answers.keyboards.support_request import get_invalid_attachment_keyboard
 from app.resources import strings
-from app.schemas.support_request import SupportRequestInCreation
+from app.schemas.support_request import (
+    SupportRequestInCreation,
+    SupportRequestInUpdating,
+)
 from app.settings import settings
 
 
@@ -51,13 +55,14 @@ def build_invalid_attachment_message(message: IncomingMessage) -> OutgoingMessag
 
 
 def build_confirm_request_message(
-    message: IncomingMessage, request: SupportRequestInCreation
+    message: IncomingMessage,
+    request: SupportRequestInCreation | SupportRequestInUpdating,
 ) -> OutgoingMessage:
     return OutgoingMessage(
         bot_id=message.bot.id,
         chat_id=message.chat.id,
         body=strings.CONFIRM_REQUEST_TEMPLATE.format(request=request),
-        bubbles=get_confirm_request_bubbles(),
+        bubbles=get_confirm_request_bubbles(request=request),
         keyboard=get_cancel_keyboard(),
     )
 
@@ -124,5 +129,26 @@ def build_text_instead_attachment_message(message: IncomingMessage) -> OutgoingM
         chat_id=message.chat.id,
         body=strings.TEXT_INSTEAD_ATTACHMENT_MESSAGE,
         bubbles=get_skip_bubbles(),
+        keyboard=get_cancel_keyboard(),
+    )
+
+
+def build_select_updating_attribute_message(
+    message: IncomingMessage,
+) -> OutgoingMessage:
+    return OutgoingMessage(
+        bot_id=message.bot.id,
+        chat_id=message.chat.id,
+        body=strings.SELECT_UPDATING_ATTRIBUTE_MESSAGE,
+        bubbles=get_select_attribute_bubbles(),
+        keyboard=get_cancel_keyboard(),
+    )
+
+
+def build_enter_new_description_message(message: IncomingMessage) -> OutgoingMessage:
+    return OutgoingMessage(
+        bot_id=message.bot.id,
+        chat_id=message.chat.id,
+        body=strings.ENTER_NEW_DESCRIPTION_MESSAGE,
         keyboard=get_cancel_keyboard(),
     )

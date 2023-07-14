@@ -249,7 +249,19 @@ async def test__enter_support_request_description_handler__valid_attachment(  # 
             bubbles=BubbleMarkup(
                 [
                     [Button(command="/confirm-request", label="Да")],
-                    [Button(command="/refuse-request", label="Нет")],
+                    [
+                        Button(
+                            command="/update-request",
+                            label="Нет",
+                            data={
+                                "support_request": {
+                                    "subject": None,
+                                    "description": default_string,
+                                    "attachments_names": default_list,
+                                }
+                            },
+                        )
+                    ],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
@@ -388,7 +400,19 @@ async def test__wait_decision_on_attachment_handler__refuse_command(
             bubbles=BubbleMarkup(
                 [
                     [Button(command="/confirm-request", label="Да")],
-                    [Button(command="/refuse-request", label="Нет")],
+                    [
+                        Button(
+                            command="/update-request",
+                            label="Нет",
+                            data={
+                                "support_request": {
+                                    "subject": None,
+                                    "description": default_string,
+                                    "attachments_names": [],
+                                }
+                            },
+                        )
+                    ],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
@@ -671,7 +695,19 @@ async def test__add_attachment_handler__skip_command(
             bubbles=BubbleMarkup(
                 [
                     [Button(command="/confirm-request", label="Да")],
-                    [Button(command="/refuse-request", label="Нет")],
+                    [
+                        Button(
+                            command="/update-request",
+                            label="Нет",
+                            data={
+                                "support_request": {
+                                    "subject": None,
+                                    "description": default_string,
+                                    "attachments_names": [],
+                                }
+                            },
+                        )
+                    ],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
@@ -679,7 +715,11 @@ async def test__add_attachment_handler__skip_command(
     )
 
 
+@patch(
+    "app.bot.commands.support_request.create.ServiceDeskRepo.get_user_attachments_names"
+)
 async def test__add_attachment_handler__confirm_request_command(
+    mocked_get_user_attachments_names: MagicMock,
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
     fsm_session: FSM,
@@ -691,6 +731,7 @@ async def test__add_attachment_handler__confirm_request_command(
     support_request = SupportRequestInCreation(
         description=default_string, attachments_names=default_list
     )
+    mocked_get_user_attachments_names.return_value = default_list
     await fsm_session.change_state(
         state=CreateSupportRequestStates.ADD_ATTACHMENT, support_request=support_request
     )
@@ -715,7 +756,19 @@ async def test__add_attachment_handler__confirm_request_command(
             bubbles=BubbleMarkup(
                 [
                     [Button(command="/confirm-request", label="Да")],
-                    [Button(command="/refuse-request", label="Нет")],
+                    [
+                        Button(
+                            command="/update-request",
+                            label="Нет",
+                            data={
+                                "support_request": {
+                                    "subject": None,
+                                    "description": default_string,
+                                    "attachments_names": default_list,
+                                }
+                            },
+                        )
+                    ],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
