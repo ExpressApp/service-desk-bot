@@ -63,3 +63,4 @@ class HiddenCommands:
     )
     UPDATE_ATTACHMENT_COMMAND = HiddenCommand(command=strings.UPDATE_ATTACHMENT_COMMAND)
     SEND_REQUEST_COMMAND = HiddenCommand(command=strings.SEND_REQUEST_COMMAND)
+    BACK_COMMAND = HiddenCommand(command=strings.BACK_COMMAND)

@@ -1,6 +1,6 @@
 """Handler for update support request command."""
 
-from pybotx import Bot, HandlerCollector, IncomingMessage
+from pybotx import Bot, IncomingMessage
 from pybotx_fsm import FSMCollector
 
 from app.bot.answers.messages.support_request import (
@@ -15,43 +15,36 @@ from app.bot.answers.messages.support_request import (
 )
 from app.bot.commands.listing import HiddenCommands
 from app.bot.middlewares.confirm_cancel import confirm_cancel_middleware
-from app.bot.states.support_request import UpdateSupportRequestStates
+from app.bot.states.support_request import (
+    CreateSupportRequestStates,
+    UpdateSupportRequestStates,
+)
 from app.db.repositories.service_desk import ServiceDeskRepo
 from app.schemas.support_request import SupportRequestInUpdating
 from app.settings import settings
 
-collector = HandlerCollector()
 fsm = FSMCollector(UpdateSupportRequestStates, middlewares=[confirm_cancel_middleware])
 
 
-@collector.command(
-    HiddenCommands.UPDATE_SUPPORT_REQUEST_COMMAND.command,
-    visible=False,
-)
-async def update_support_request_handler(message: IncomingMessage, bot: Bot) -> None:
-    """Starts support request updating process (FSM)."""  # noqa: D401
-
-    request_in_creation = message.data.get("support_request", {})
-
-    support_request = SupportRequestInUpdating(**request_in_creation)
-
-    await bot.send(message=build_select_updating_attribute_message(message))
-    await message.state.fsm.change_state(
-        state=UpdateSupportRequestStates.SELECT_ATTRIBUTE,
-        support_request=support_request,
-    )
-
-
 @fsm.on(UpdateSupportRequestStates.SELECT_ATTRIBUTE)
-async def select_updating_attribute_handler(message: IncomingMessage, bot: Bot) -> None:
+async def select_updating_attribute_handler(  # noqa: WPS213
+    message: IncomingMessage, bot: Bot
+) -> None:
     """Select updating attribute and switch to next state (FSM)."""
 
     command = message.body
     support_request: SupportRequestInUpdating = (
         message.state.fsm_storage.support_request
     )
+    service_desk_repo = ServiceDeskRepo(
+        sender_huid=message.sender.huid, attachment=message.file  # type: ignore
+    )
 
-    if not command:
+    if not command or command not in {  # noqa: WPS337
+        HiddenCommands.UPDATE_DESCRIPTION_COMMAND.command,
+        HiddenCommands.UPDATE_ATTACHMENT_COMMAND.command,
+        HiddenCommands.BACK_COMMAND.command,
+    }:
         await bot.send(message=build_select_updating_attribute_message(message))
         await message.state.fsm.change_state(
             state=UpdateSupportRequestStates.SELECT_ATTRIBUTE,
@@ -62,25 +55,30 @@ async def select_updating_attribute_handler(message: IncomingMessage, bot: Bot) 
     if command == HiddenCommands.UPDATE_DESCRIPTION_COMMAND.command:
         await bot.send(message=build_enter_new_description_message(message))
         await message.state.fsm.change_state(
-            state=UpdateSupportRequestStates.ENTER_NEW_DESCRIPTION,
+            state=UpdateSupportRequestStates.ENTER_DESCRIPTION,
             support_request=support_request,
         )
     elif command == HiddenCommands.UPDATE_ATTACHMENT_COMMAND.command:
+        await service_desk_repo.delete_user_attachments()
+
         await bot.send(message=build_add_attachment_message(message))
         await message.state.fsm.change_state(
-            state=UpdateSupportRequestStates.ADD_NEW_ATTACHMENT,
+            state=UpdateSupportRequestStates.ADD_ATTACHMENT,
             support_request=support_request,
         )
     else:
-        await bot.send(message=build_select_updating_attribute_message(message))
+        await message.state.fsm.drop_state()
+
+        await bot.send(
+            message=build_confirm_request_message(message, request=support_request)
+        )
         await message.state.fsm.change_state(
-            state=UpdateSupportRequestStates.SELECT_ATTRIBUTE,
+            state=CreateSupportRequestStates.CONFIRM_REQUEST,
             support_request=support_request,
         )
-        return
 
 
-@fsm.on(UpdateSupportRequestStates.ENTER_NEW_DESCRIPTION)
+@fsm.on(UpdateSupportRequestStates.ENTER_DESCRIPTION)
 async def enter_new_description_handler(message: IncomingMessage, bot: Bot) -> None:
     """Add new request description and switch to next state (FSM)."""
 
@@ -98,13 +96,17 @@ async def enter_new_description_handler(message: IncomingMessage, bot: Bot) -> N
         message.state.fsm_storage.support_request
     )
     support_request.description = new_description
+    await message.state.fsm.drop_state()
+
     await bot.send(
         message=build_confirm_request_message(message, request=support_request)
     )
-    await message.state.fsm.drop_state()
+    await message.state.fsm.change_state(
+        CreateSupportRequestStates.CONFIRM_REQUEST, support_request=support_request
+    )
 
 
-@fsm.on(UpdateSupportRequestStates.ADD_NEW_ATTACHMENT)
+@fsm.on(UpdateSupportRequestStates.ADD_ATTACHMENT)
 async def add_new_attachment_handler(  # noqa: WPS213
     message: IncomingMessage, bot: Bot
 ) -> None:
@@ -119,8 +121,6 @@ async def add_new_attachment_handler(  # noqa: WPS213
         message.state.fsm_storage.support_request
     )
 
-    await service_desk_repo.delete_user_attachments()
-
     if command in {  # noqa: WPS337
         HiddenCommands.SKIP_COMMAND.command,
         HiddenCommands.SEND_TO_CONFIRM_COMMAND.command,
@@ -131,10 +131,14 @@ async def add_new_attachment_handler(  # noqa: WPS213
         support_request.attachments_names = (
             service_desk_repo.get_user_attachments_names()
         )
+        await message.state.fsm.drop_state()
+
         await bot.send(
             message=build_confirm_request_message(message, request=support_request)
         )
-        await message.state.fsm.drop_state()
+        await message.state.fsm.change_state(
+            CreateSupportRequestStates.CONFIRM_REQUEST, support_request=support_request
+        )
         return
 
     if not attachment:
@@ -154,5 +158,5 @@ async def add_new_attachment_handler(  # noqa: WPS213
         )
     )
     await message.state.fsm.change_state(
-        UpdateSupportRequestStates.ADD_NEW_ATTACHMENT, support_request=support_request
+        UpdateSupportRequestStates.ADD_ATTACHMENT, support_request=support_request
     )

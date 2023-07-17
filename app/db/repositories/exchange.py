@@ -29,6 +29,7 @@ if settings.VERIFY_SSL:
     BaseProtocol.HTTP_ADAPTER_CLS = RootCAAdapter
 
 
+@async_wrap
 def get_ews_account(
     credential_username: str,
     credential_password: SecretStr,

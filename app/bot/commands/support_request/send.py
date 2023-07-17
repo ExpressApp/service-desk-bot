@@ -1,12 +1,9 @@
 """Handler for send support request command."""
 
-from pybotx import Bot, HandlerCollector, IncomingMessage
+from pybotx import Bot, IncomingMessage
 from pybotx.models.enums import ClientPlatforms
-from pybotx_fsm import FSMCollector
 
 from app.bot.answers.messages.support_request import build_success_send_message
-from app.bot.commands.listing import HiddenCommands
-from app.bot.states.support_request import CreateSupportRequestStates
 from app.db.repositories.exchange import ExchangeRepo, get_ews_account
 from app.db.repositories.service_desk import ServiceDeskRepo
 from app.resources import strings
@@ -15,16 +12,11 @@ from app.services.botx_user_search import search_user_on_each_cts
 from app.services.exchange import convert_to_ews_html
 from app.settings import settings
 
-collector = HandlerCollector()
-fsm = FSMCollector(CreateSupportRequestStates)
 
-
-@collector.command(
-    HiddenCommands.SEND_REQUEST_COMMAND.command,
-    visible=False,
-)
-async def send_support_request_handler(  # noqa: WPS210
-    message: IncomingMessage, bot: Bot
+async def send_support_request(  # noqa: WPS210
+    message: IncomingMessage,
+    bot: Bot,
+    support_request: SupportRequestToSend,
 ) -> None:
     """Send support request by email."""
 
@@ -38,8 +30,6 @@ async def send_support_request_handler(  # noqa: WPS210
         else "-"
     )
 
-    incoming_request = message.data.get("support_request", {})
-    support_request = SupportRequestToSend(**incoming_request)
     support_request.description = support_request.description.replace("\n", "<br>")
 
     service_desk_repo = ServiceDeskRepo(
@@ -58,7 +48,7 @@ async def send_support_request_handler(  # noqa: WPS210
         host=cts.host,
     )
 
-    ews_account = get_ews_account(
+    ews_account = await get_ews_account(
         credential_username=settings.MAIL_USERNAME,
         credential_password=settings.MAIL_PASSWORD,
         sender_email=settings.SENDER_EMAIL,
