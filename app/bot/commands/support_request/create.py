@@ -36,7 +36,9 @@ async def create_support_request_handler(message: IncomingMessage, bot: Bot) -> 
         sender_huid=message.sender.huid, attachment=message.file  # type: ignore
     ).delete_user_attachments()
 
-    subject = strings.SUBJECT_TEMPLATE.format(username=message.sender.username)
+    subject = strings.SUBJECT_TEMPLATE.format(
+        app_name=settings.APP_NAME, username=message.sender.username
+    )
     support_request = SupportRequestInCreation(subject=subject)
 
     await bot.send(message=build_enter_description_message(message))
@@ -158,7 +160,7 @@ async def add_attachment_handler(message: IncomingMessage, bot: Bot) -> None:
 
     if command in {  # noqa: WPS337
         HiddenCommands.SKIP_COMMAND.command,
-        HiddenCommands.SEND_SUPPORT_REQUEST_COMMAND.command,
+        HiddenCommands.SEND_TO_CONFIRM_COMMAND.command,
     }:
         if command == HiddenCommands.SKIP_COMMAND.command:
             await service_desk_repo.delete_user_attachments()

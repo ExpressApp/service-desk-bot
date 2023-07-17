@@ -47,9 +47,7 @@ class HiddenCommands:
     CANCEL_COMMAND = HiddenCommand(command=strings.CANCEL_COMMAND)
     CONFIRM_CANCEL_COMMAND = HiddenCommand(command=strings.CONFIRM_CANCEL_COMMAND)
     REFUSE_CANCEL_COMMAND = HiddenCommand(command=strings.REFUSE_CANCEL_COMMAND)
-    SEND_SUPPORT_REQUEST_COMMAND = HiddenCommand(
-        command=strings.CONFIRM_REQUEST_COMMAND
-    )
+    SEND_TO_CONFIRM_COMMAND = HiddenCommand(command=strings.SEND_TO_CONFIRM_COMMAND)
     UPDATE_SUPPORT_REQUEST_COMMAND = HiddenCommand(
         command=strings.UPDATE_REQUEST_COMMAND
     )
@@ -64,3 +62,4 @@ class HiddenCommands:
         command=strings.UPDATE_DESCRIPTION_COMMAND
     )
     UPDATE_ATTACHMENT_COMMAND = HiddenCommand(command=strings.UPDATE_ATTACHMENT_COMMAND)
+    SEND_REQUEST_COMMAND = HiddenCommand(command=strings.SEND_REQUEST_COMMAND)

@@ -11,7 +11,7 @@ def get_invalid_attachment_keyboard() -> KeyboardMarkup:
 
     keyboard = KeyboardMarkup()
     keyboard.add_button(
-        command=HiddenCommands.SEND_SUPPORT_REQUEST_COMMAND.command,
+        command=HiddenCommands.SEND_TO_CONFIRM_COMMAND.command,
         label=strings.SEND_SUPPORT_REQUEST_COMMAND_LABEL.upper(),
     )
     keyboard.add_button(

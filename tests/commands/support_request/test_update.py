@@ -324,17 +324,29 @@ async def test__enter_new_description_handler(
             ),
             bubbles=BubbleMarkup(
                 [
-                    [Button(command="/confirm-request", label="Да")],
+                    [
+                        Button(
+                            command="/send-request",
+                            label="Да",
+                            data={
+                                "support_request": {
+                                    "subject": default_string,
+                                    "description": default_string,
+                                    "attachments_names": [],
+                                }
+                            },
+                        )
+                    ],
                     [
                         Button(
                             command="/update-request",
                             label="Нет",
                             data={
-                                "support_request": SupportRequestInCreation(
-                                    subject=default_string,
-                                    description=default_string,
-                                    attachments_names=[],
-                                )
+                                "support_request": {
+                                    "subject": default_string,
+                                    "description": default_string,
+                                    "attachments_names": [],
+                                }
                             },
                         )
                     ],
@@ -438,7 +450,7 @@ async def test__add_attachment_handler__invalid_attachment(
             ),
             keyboard=KeyboardMarkup(
                 [
-                    [Button(command="/confirm-request", label="ОТПРАВИТЬ ОБРАЩЕНИЕ")],
+                    [Button(command="/send-to-confirm", label="ОТПРАВИТЬ ОБРАЩЕНИЕ")],
                     [Button(command="/cancel", label="ОТМЕНА")],
                 ]
             ),
@@ -506,7 +518,7 @@ async def test__add_attachment_handler__valid_attachment(  # noqa: WPS218
                 "Если необходимо добавить вложения — прикрепите их."
             ),
             bubbles=BubbleMarkup(
-                [[Button(command="/confirm-request", label="Отправить обращение")]]
+                [[Button(command="/send-to-confirm", label="Отправить обращение")]]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
         ),
@@ -552,17 +564,29 @@ async def test__add_attachment_handler__skip_command(
             ),
             bubbles=BubbleMarkup(
                 [
-                    [Button(command="/confirm-request", label="Да")],
+                    [
+                        Button(
+                            command="/send-request",
+                            label="Да",
+                            data={
+                                "support_request": {
+                                    "subject": None,
+                                    "description": default_string,
+                                    "attachments_names": [],
+                                }
+                            },
+                        )
+                    ],
                     [
                         Button(
                             command="/update-request",
                             label="Нет",
                             data={
-                                "support_request": SupportRequestInCreation(
-                                    subject=None,
-                                    description=default_string,
-                                    attachments_names=[],
-                                )
+                                "support_request": {
+                                    "subject": None,
+                                    "description": default_string,
+                                    "attachments_names": [],
+                                }
                             },
                         )
                     ],
@@ -590,7 +614,7 @@ async def test__add_attachment_handler__confirm_request_command(
     default_list: list[str],
 ) -> None:
     # - Arrange -
-    message = incoming_message_factory(body="/confirm-request")
+    message = incoming_message_factory(body="/send-to-confirm")
     support_request = SupportRequestInCreation(
         description=default_string, attachments_names=default_list
     )
@@ -621,17 +645,29 @@ async def test__add_attachment_handler__confirm_request_command(
             ),
             bubbles=BubbleMarkup(
                 [
-                    [Button(command="/confirm-request", label="Да")],
+                    [
+                        Button(
+                            command="/send-request",
+                            label="Да",
+                            data={
+                                "support_request": {
+                                    "subject": None,
+                                    "description": default_string,
+                                    "attachments_names": default_list,
+                                }
+                            },
+                        )
+                    ],
                     [
                         Button(
                             command="/update-request",
                             label="Нет",
                             data={
-                                "support_request": SupportRequestInCreation(
-                                    subject=None,
-                                    description=default_string,
-                                    attachments_names=default_list,
-                                )
+                                "support_request": {
+                                    "subject": None,
+                                    "description": default_string,
+                                    "attachments_names": default_list,
+                                }
                             },
                         )
                     ],

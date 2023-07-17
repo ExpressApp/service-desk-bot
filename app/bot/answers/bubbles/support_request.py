@@ -31,21 +31,24 @@ def get_confirm_request_bubbles(
 ) -> BubbleMarkup:
     """Get confirm support request bubbles."""
 
+    request_data = {
+        "support_request": {
+            "subject": request.subject,
+            "description": request.description,
+            "attachments_names": request.attachments_names,
+        }
+    }
+
     bubbles = BubbleMarkup()
     bubbles.add_button(
-        command=HiddenCommands.SEND_SUPPORT_REQUEST_COMMAND.command,
+        command=HiddenCommands.SEND_REQUEST_COMMAND.command,
         label=strings.YES_LABEL,
+        data=request_data,
     )
     bubbles.add_button(
         command=HiddenCommands.UPDATE_SUPPORT_REQUEST_COMMAND.command,
         label=strings.NO_LABEL,
-        data={
-            "support_request": {
-                "subject": request.subject,
-                "description": request.description,
-                "attachments_names": request.attachments_names,
-            }
-        },
+        data=request_data,
     )
 
     return bubbles
@@ -72,7 +75,7 @@ def get_send_request_bubbles() -> BubbleMarkup:
 
     bubbles = BubbleMarkup()
     bubbles.add_button(
-        command=HiddenCommands.SEND_SUPPORT_REQUEST_COMMAND.command,
+        command=HiddenCommands.SEND_TO_CONFIRM_COMMAND.command,
         label=strings.SEND_SUPPORT_REQUEST_COMMAND_LABEL,
     )
 

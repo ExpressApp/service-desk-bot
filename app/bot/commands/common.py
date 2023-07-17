@@ -14,6 +14,7 @@ from app.bot.answers.bubbles.common import get_default_bubbles
 from app.bot.answers.messages.common import build_default_message
 from app.bot.commands.listing import PublicCommands
 from app.resources import strings
+from app.settings import settings
 
 collector = HandlerCollector()
 
@@ -25,7 +26,7 @@ async def default_handler(
 ) -> None:
     """Run if command handler not found."""
 
-    answer_body = strings.DEFAULT_TEMPLATE.format(app_name=strings.APP_NAME)
+    answer_body = strings.DEFAULT_TEMPLATE.format(app_name=settings.APP_NAME)
     await bot.send(message=build_default_message(message, body=answer_body))
 
 
@@ -33,7 +34,7 @@ async def default_handler(
 async def chat_created_handler(event: ChatCreatedEvent, bot: Bot) -> None:
     """Send a welcome message and the bot functionality in new created chat."""
 
-    answer_body = strings.CHAT_CREATED_TEMPLATE.format(app_name=strings.APP_NAME)
+    answer_body = strings.CHAT_CREATED_TEMPLATE.format(app_name=settings.APP_NAME)
 
     await bot.answer_message(answer_body, bubbles=get_default_bubbles())
 
@@ -50,7 +51,7 @@ async def help_handler(message: IncomingMessage, bot: Bot) -> None:
     command_map = dict(sorted(status.items()))
 
     answer_body = strings.HELP_COMMAND_MESSAGE_TEMPLATE.format(
-        commands=command_map.items(), app_name=strings.APP_NAME
+        commands=command_map.items(), app_name=settings.APP_NAME
     )
 
     await bot.send(message=build_default_message(message, body=answer_body))

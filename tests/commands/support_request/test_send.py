@@ -1,0 +1,74 @@
+from typing import Callable
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
+
+from pybotx import Bot, BubbleMarkup, Button, IncomingMessage, OutgoingMessage
+
+
+@patch(
+    "app.bot.commands.support_request.send.ServiceDeskRepo.delete_user_attachments",
+    new_callable=AsyncMock,
+)
+@patch("app.bot.commands.support_request.send.get_ews_account")
+@patch(
+    "app.bot.commands.support_request.send.ExchangeRepo.send_mail",
+    new_callable=AsyncMock,
+)
+@patch(
+    "app.bot.commands.support_request.send.ServiceDeskRepo.get_user_attachments",
+    new_callable=AsyncMock,
+)
+@patch(
+    "app.bot.commands.support_request.send.search_user_on_each_cts",
+    new_callable=AsyncMock,
+)
+async def test__send_support_request_handler(
+    mocked_search_user_on_each_cts: AsyncMock,
+    mocked_get_user_attachments: AsyncMock,
+    mocked_send_mail: AsyncMock,
+    mocked_get_ews_account: MagicMock,
+    mocked_delete_user_attachments: AsyncMock,
+    bot: Bot,
+    incoming_message_factory: Callable[..., IncomingMessage],
+    default_string: str,
+) -> None:
+    # - Arrange -
+    message = incoming_message_factory(
+        body="/send-request",
+        data={
+            "support_request": {
+                "subject": default_string,
+                "description": default_string,
+                "attachments_names": [],
+            }
+        },
+    )
+    mocked_user = Mock()
+    mocked_user.emails = []
+    mocked_cts = Mock()
+    mocked_search_user_on_each_cts.return_value = (mocked_user, mocked_cts)
+
+    # - Act -
+    await bot.async_execute_bot_command(message)
+
+    # - Assert -
+    assert mocked_search_user_on_each_cts.call_count == 1
+    assert mocked_get_user_attachments.call_count == 1
+    assert mocked_send_mail.call_count == 1
+    assert mocked_get_ews_account.call_count == 1
+    assert mocked_delete_user_attachments.call_count == 1
+    bot.send.assert_awaited_once_with(  # type: ignore
+        message=OutgoingMessage(
+            bot_id=message.bot.id,
+            chat_id=message.chat.id,
+            body=(
+                "Ваше обращение отправлено.\n"
+                "В случае необходимости получения дополнительной информации, "
+                "с Вами свяжется специалист службы технической поддержки.\n"
+                "Уведомление о решении обращения будет направлено "
+                "Вам на электронную почту или персональным сообщением в eXpress."
+            ),
+            bubbles=BubbleMarkup(
+                [[Button(command="/обращение", label="Оформить новое обращение")]]
+            ),
+        ),
+    )
