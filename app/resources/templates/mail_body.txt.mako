@@ -4,7 +4,7 @@ E-mail: ${ ", ".join(user.emails) if user.emails else "-"}
 Номер мобильного телефона: ${ message.sender.ad_login }
 Компания: ${ user.company }
 Должность: ${ user.company_position }
-Орг. присвоение: ${ user.department }
+Отдел: ${ user.department }
 Название клиентской платформы: ${ platform }
 % if platform in (client_platform_enum.IOS, client_platform_enum.ANDROID):
 Имя бренда производителя девайса: ${ message.sender.device.manufacturer }
