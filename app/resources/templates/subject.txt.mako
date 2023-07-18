@@ -1,1 +1,4 @@
-Обращение по ${ app_name } от Пользователя ${ username }
+${ email_title }
+% if show_sender_name_in_email_title:
+от Пользователя ${ username }
+% endif

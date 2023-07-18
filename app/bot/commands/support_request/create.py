@@ -47,7 +47,9 @@ async def create_support_request_handler(message: IncomingMessage, bot: Bot) -> 
     ).delete_user_attachments()
 
     subject = strings.SUBJECT_TEMPLATE.format(
-        app_name=settings.APP_NAME, username=message.sender.username
+        email_title=settings.EMAIL_TITLE,
+        username=message.sender.username,
+        show_sender_name_in_email_title=settings.SHOW_SENDER_NAME_IN_EMAIL_TITLE,
     )
     support_request = SupportRequestInCreation(subject=subject)
 

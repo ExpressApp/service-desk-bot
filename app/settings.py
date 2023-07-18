@@ -48,6 +48,10 @@ class AppSettings(BaseSettings):  # noqa: WPS338
     # storage:
     USERS_ATTACHMENTS_DIR = Path("./attachments")
 
+    # templates:
+    SHOW_SENDER_NAME_IN_EMAIL_TITLE: bool | None = True
+    EMAIL_TITLE: str = "Обращение по eXpress"
+
     # exchange:
     MAIL_SERVER: str
     MAIL_USERNAME: str
@@ -64,6 +68,13 @@ class AppSettings(BaseSettings):  # noqa: WPS338
         """Return default value if APP_NAME is empty string."""
 
         return app_name or "eXpress"
+
+    @validator("EMAIL_TITLE", pre=True)
+    @classmethod
+    def check_email_title(cls, email_title: str | None) -> str:
+        """Return default value if EMAIL_TITLE is empty string or None."""
+
+        return email_title or "Обращение по eXpress"
 
     @classmethod
     def _build_credentials_from_string(
