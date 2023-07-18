@@ -80,7 +80,7 @@ SEND_SUPPORT_REQUEST_COMMAND_LABEL = "Отправить обращение"
 SKIP_COMMAND_LABEL = "Пропустить"
 UPDATE_DESCRIPTION_COMMAND_LABEL = "Описание проблемы"
 UPDATE_ATTACHMENT_COMMAND_LABEL = "Файлы"
-BACK_COMMAND_LABEL = "Назад"
+BACK_COMMAND_LABEL = "НАЗАД"
 
 # descriptions:
 CREATE_SUPPORT_REQUEST_COMMAND_DESCRIPTION = "оформить обращение в поддержку"
