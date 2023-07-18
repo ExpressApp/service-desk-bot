@@ -69,6 +69,7 @@ REFUSE_ATTACHMENT_ADDITION_COMMAND = "/refuse-attachment-addition"
 SKIP_COMMAND = "/skip"
 UPDATE_DESCRIPTION_COMMAND = "/update-description"
 UPDATE_ATTACHMENT_COMMAND = "/update-attachment"
+BACK_COMMAND = "/back"
 
 # labels:
 CREATE_SUPPORT_REQUEST_COMMAND_LABEL = "Оформить новое обращение"
@@ -79,6 +80,7 @@ SEND_SUPPORT_REQUEST_COMMAND_LABEL = "Отправить обращение"
 SKIP_COMMAND_LABEL = "Пропустить"
 UPDATE_DESCRIPTION_COMMAND_LABEL = "Описание проблемы"
 UPDATE_ATTACHMENT_COMMAND_LABEL = "Файлы"
+BACK_COMMAND_LABEL = "Назад"
 
 # descriptions:
 CREATE_SUPPORT_REQUEST_COMMAND_DESCRIPTION = "оформить обращение в поддержку"
@@ -152,5 +154,11 @@ SUCCESS_SEND_MESSAGE = "".join(
         "с Вами свяжется специалист службы технической поддержки.\n"
         "Уведомление о решении обращения будет направлено Вам на электронную почту "
         f"или персональным сообщением в {settings.APP_NAME}."
+    )
+)
+NOT_CONFIRM_COMMAND_MESSAGE = "".join(
+    (
+        "На данном этапе вам необходидмо подтвердить корректность введенных данных.\n",
+        'Если вы хотите оформить новое обращение, нажмите кнопку "Отмена"',
     )
 )

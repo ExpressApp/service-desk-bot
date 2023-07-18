@@ -12,7 +12,10 @@ from pybotx import (
 from pybotx.models.attachments import AttachmentDocument
 from pybotx_fsm import FSM
 
-from app.bot.states.support_request import UpdateSupportRequestStates
+from app.bot.states.support_request import (
+    CreateSupportRequestStates,
+    UpdateSupportRequestStates,
+)
 from app.schemas.support_request import (
     SupportRequestInCreation,
     SupportRequestInUpdating,
@@ -26,16 +29,14 @@ async def test__update_support_request_handler(
     default_string: str,
 ) -> None:
     # - Arrange -
-    message = incoming_message_factory(
-        body="/update-request",
-        data={
-            "support_request": {
-                "subject": default_string,
-                "description": default_string,
-                "attachments_names": [],
-            }
-        },
+    await fsm_session.change_state(
+        state=CreateSupportRequestStates.CONFIRM_REQUEST,
+        support_request=SupportRequestInUpdating(
+            subject=default_string,
+            description=default_string,
+        ),
     )
+    message = incoming_message_factory(body="/update-request")
 
     # - Act -
     await bot.async_execute_bot_command(message)
@@ -53,7 +54,12 @@ async def test__update_support_request_handler(
                     [Button(command="/update-attachment", label="Файлы")],
                 ]
             ),
-            keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
+            keyboard=KeyboardMarkup(
+                [
+                    [Button(command="/back", label="Назад")],
+                    [Button(command="/cancel", label="ОТМЕНА")],
+                ]
+            ),
         ),
     )
 
@@ -90,7 +96,12 @@ async def test__select_updating_attribute_handler__empty_message(
                     [Button(command="/update-attachment", label="Файлы")],
                 ]
             ),
-            keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
+            keyboard=KeyboardMarkup(
+                [
+                    [Button(command="/back", label="Назад")],
+                    [Button(command="/cancel", label="ОТМЕНА")],
+                ]
+            ),
         ),
     )
 
@@ -116,7 +127,7 @@ async def test__select_updating_attribute_handler__update_description_command(
     # - Assert -
     assert (
         await fsm_session.get_state()
-        == UpdateSupportRequestStates.ENTER_NEW_DESCRIPTION  # noqa: W503
+        == UpdateSupportRequestStates.ENTER_DESCRIPTION  # noqa: W503
     )
     assert message.state.fsm_storage.support_request.description == default_string
     bot.send.assert_awaited_once_with(  # type: ignore
@@ -154,9 +165,7 @@ async def test__select_updating_attribute_handler__update_attachment_command(
     await bot.async_execute_bot_command(message)
 
     # - Assert -
-    assert (
-        await fsm_session.get_state() == UpdateSupportRequestStates.ADD_NEW_ATTACHMENT
-    )
+    assert await fsm_session.get_state() == UpdateSupportRequestStates.ADD_ATTACHMENT
     assert message.state.fsm_storage.support_request.description == default_string
     bot.send.assert_awaited_once_with(  # type: ignore
         message=OutgoingMessage(
@@ -208,7 +217,12 @@ async def test__select_updating_attribute_handler__text_instead_command(
                     [Button(command="/update-attachment", label="Файлы")],
                 ]
             ),
-            keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
+            keyboard=KeyboardMarkup(
+                [
+                    [Button(command="/back", label="Назад")],
+                    [Button(command="/cancel", label="ОТМЕНА")],
+                ]
+            ),
         ),
     )
 
@@ -222,7 +236,7 @@ async def test__enter_new_description_handler__empty_message(
     # - Arrange -
     message = incoming_message_factory(body="")
     await fsm_session.change_state(
-        state=UpdateSupportRequestStates.ENTER_NEW_DESCRIPTION,
+        state=UpdateSupportRequestStates.ENTER_DESCRIPTION,
         support_request=SupportRequestInUpdating(
             subject=default_string,
             description=default_string,
@@ -234,7 +248,7 @@ async def test__enter_new_description_handler__empty_message(
     # - Assert -
     assert (
         await fsm_session.get_state()
-        == UpdateSupportRequestStates.ENTER_NEW_DESCRIPTION  # noqa: W503
+        == UpdateSupportRequestStates.ENTER_DESCRIPTION  # noqa: W503
     )
     assert message.state.fsm_storage.support_request.description == default_string
     bot.send.assert_awaited_once_with(  # type: ignore
@@ -263,7 +277,7 @@ async def test__enter_new_description_handler__max_description_length_exceeded(
     # - Arrange -
     message = incoming_message_factory(body=default_string)
     await fsm_session.change_state(
-        state=UpdateSupportRequestStates.ENTER_NEW_DESCRIPTION,
+        state=UpdateSupportRequestStates.ENTER_DESCRIPTION,
         support_request=SupportRequestInUpdating(
             subject=default_string,
             description=default_string,
@@ -275,7 +289,7 @@ async def test__enter_new_description_handler__max_description_length_exceeded(
     # - Assert -
     assert (
         await fsm_session.get_state()
-        == UpdateSupportRequestStates.ENTER_NEW_DESCRIPTION  # noqa: W503
+        == UpdateSupportRequestStates.ENTER_DESCRIPTION  # noqa: W503
     )
     assert message.state.fsm_storage.support_request.description == default_string
     bot.send.assert_awaited_once_with(  # type: ignore
@@ -300,7 +314,7 @@ async def test__enter_new_description_handler(
     # - Arrange -
     message = incoming_message_factory(body=default_string)
     await fsm_session.change_state(
-        state=UpdateSupportRequestStates.ENTER_NEW_DESCRIPTION,
+        state=UpdateSupportRequestStates.ENTER_DESCRIPTION,
         support_request=SupportRequestInUpdating(
             subject=default_string,
             description=default_string,
@@ -310,7 +324,7 @@ async def test__enter_new_description_handler(
     await bot.async_execute_bot_command(message)
 
     # - Assert -
-    assert await fsm_session.get_state() is None
+    assert await fsm_session.get_state() == CreateSupportRequestStates.CONFIRM_REQUEST
     assert message.state.fsm_storage.support_request.description == default_string
     bot.send.assert_awaited_once_with(  # type: ignore
         message=OutgoingMessage(
@@ -324,32 +338,8 @@ async def test__enter_new_description_handler(
             ),
             bubbles=BubbleMarkup(
                 [
-                    [
-                        Button(
-                            command="/send-request",
-                            label="Да",
-                            data={
-                                "support_request": {
-                                    "subject": default_string,
-                                    "description": default_string,
-                                    "attachments_names": [],
-                                }
-                            },
-                        )
-                    ],
-                    [
-                        Button(
-                            command="/update-request",
-                            label="Нет",
-                            data={
-                                "support_request": {
-                                    "subject": default_string,
-                                    "description": default_string,
-                                    "attachments_names": [],
-                                }
-                            },
-                        )
-                    ],
+                    [Button(command="/send-request", label="Да")],
+                    [Button(command="/update-request", label="Нет")],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
@@ -372,7 +362,7 @@ async def test__add_attachment_handler__text_instead_attachment(
     message = incoming_message_factory(body="")
     support_request = SupportRequestInCreation(description=default_string)
     await fsm_session.change_state(
-        state=UpdateSupportRequestStates.ADD_NEW_ATTACHMENT,
+        state=UpdateSupportRequestStates.ADD_ATTACHMENT,
         support_request=support_request,
     )
 
@@ -380,10 +370,8 @@ async def test__add_attachment_handler__text_instead_attachment(
     await bot.async_execute_bot_command(message)
 
     # - Assert -
-    assert mocked_delete_user_attachments.call_count == 1
-    assert (
-        await fsm_session.get_state() == UpdateSupportRequestStates.ADD_NEW_ATTACHMENT
-    )
+    assert mocked_delete_user_attachments.call_count == 0
+    assert await fsm_session.get_state() == UpdateSupportRequestStates.ADD_ATTACHMENT
     assert message.state.fsm_storage.support_request.description == default_string
     assert not message.state.fsm_storage.support_request.attachments_names
     bot.send.assert_awaited_once_with(  # type: ignore
@@ -422,7 +410,7 @@ async def test__add_attachment_handler__invalid_attachment(
     message = incoming_message_factory(body="", file=incoming_attachment)
     support_request = SupportRequestInCreation(description=default_string)
     await fsm_session.change_state(
-        state=UpdateSupportRequestStates.ADD_NEW_ATTACHMENT,
+        state=UpdateSupportRequestStates.ADD_ATTACHMENT,
         support_request=support_request,
     )
 
@@ -430,11 +418,9 @@ async def test__add_attachment_handler__invalid_attachment(
     await bot.async_execute_bot_command(message)
 
     # - Assert -
-    assert mocked_delete_user_attachments.call_count == 1
+    assert mocked_delete_user_attachments.call_count == 0
     assert mocked_is_valid_attachment.call_count == 1
-    assert (
-        await fsm_session.get_state() == UpdateSupportRequestStates.ADD_NEW_ATTACHMENT
-    )
+    assert await fsm_session.get_state() == UpdateSupportRequestStates.ADD_ATTACHMENT
     assert message.state.fsm_storage.support_request.description == default_string
     assert not message.state.fsm_storage.support_request.attachments_names
     bot.send.assert_awaited_once_with(  # type: ignore
@@ -487,7 +473,7 @@ async def test__add_attachment_handler__valid_attachment(  # noqa: WPS218
     support_request = SupportRequestInCreation(description=default_string)
     mocked_get_user_attachments_names.return_value = default_list
     await fsm_session.change_state(
-        state=UpdateSupportRequestStates.ADD_NEW_ATTACHMENT,
+        state=UpdateSupportRequestStates.ADD_ATTACHMENT,
         support_request=support_request,
     )
 
@@ -495,13 +481,11 @@ async def test__add_attachment_handler__valid_attachment(  # noqa: WPS218
     await bot.async_execute_bot_command(message)
 
     # - Assert -
-    assert mocked_delete_user_attachments.call_count == 1
+    assert mocked_delete_user_attachments.call_count == 0
     assert mocked_is_valid_attachment.call_count == 1
     assert mocked_add_user_attachment.call_count == 1
     assert mocked_get_user_attachments_names.call_count == 1
-    assert (
-        await fsm_session.get_state() == UpdateSupportRequestStates.ADD_NEW_ATTACHMENT
-    )
+    assert await fsm_session.get_state() == UpdateSupportRequestStates.ADD_ATTACHMENT
     assert message.state.fsm_storage.support_request.description == default_string
     assert message.state.fsm_storage.support_request.attachments_names == default_list
     bot.send.assert_awaited_once_with(  # type: ignore
@@ -540,7 +524,7 @@ async def test__add_attachment_handler__skip_command(
     message = incoming_message_factory(body="/skip")
     support_request = SupportRequestInCreation(description=default_string)
     await fsm_session.change_state(
-        state=UpdateSupportRequestStates.ADD_NEW_ATTACHMENT,
+        state=UpdateSupportRequestStates.ADD_ATTACHMENT,
         support_request=support_request,
     )
 
@@ -548,8 +532,8 @@ async def test__add_attachment_handler__skip_command(
     await bot.async_execute_bot_command(message)
 
     # - Assert -
-    assert mocked_delete_user_attachments.call_count == 2
-    assert await fsm_session.get_state() is None
+    assert mocked_delete_user_attachments.call_count == 1
+    assert await fsm_session.get_state() == CreateSupportRequestStates.CONFIRM_REQUEST
     assert message.state.fsm_storage.support_request.description == default_string
     assert not message.state.fsm_storage.support_request.attachments_names
     bot.send.assert_awaited_once_with(  # type: ignore
@@ -564,32 +548,8 @@ async def test__add_attachment_handler__skip_command(
             ),
             bubbles=BubbleMarkup(
                 [
-                    [
-                        Button(
-                            command="/send-request",
-                            label="Да",
-                            data={
-                                "support_request": {
-                                    "subject": None,
-                                    "description": default_string,
-                                    "attachments_names": [],
-                                }
-                            },
-                        )
-                    ],
-                    [
-                        Button(
-                            command="/update-request",
-                            label="Нет",
-                            data={
-                                "support_request": {
-                                    "subject": None,
-                                    "description": default_string,
-                                    "attachments_names": [],
-                                }
-                            },
-                        )
-                    ],
+                    [Button(command="/send-request", label="Да")],
+                    [Button(command="/update-request", label="Нет")],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
@@ -620,7 +580,7 @@ async def test__add_attachment_handler__confirm_request_command(
     )
     mocked_get_user_attachments_names.return_value = default_list
     await fsm_session.change_state(
-        state=UpdateSupportRequestStates.ADD_NEW_ATTACHMENT,
+        state=UpdateSupportRequestStates.ADD_ATTACHMENT,
         support_request=support_request,
     )
 
@@ -629,8 +589,8 @@ async def test__add_attachment_handler__confirm_request_command(
 
     # - Assert -
     assert mocked_get_user_attachments_names.call_count == 1
-    assert mocked_delete_user_attachments.call_count == 1
-    assert await fsm_session.get_state() is None
+    assert mocked_delete_user_attachments.call_count == 0
+    assert await fsm_session.get_state() == CreateSupportRequestStates.CONFIRM_REQUEST
     assert message.state.fsm_storage.support_request.description == default_string
     assert message.state.fsm_storage.support_request.attachments_names == default_list
     bot.send.assert_awaited_once_with(  # type: ignore
@@ -645,32 +605,8 @@ async def test__add_attachment_handler__confirm_request_command(
             ),
             bubbles=BubbleMarkup(
                 [
-                    [
-                        Button(
-                            command="/send-request",
-                            label="Да",
-                            data={
-                                "support_request": {
-                                    "subject": None,
-                                    "description": default_string,
-                                    "attachments_names": default_list,
-                                }
-                            },
-                        )
-                    ],
-                    [
-                        Button(
-                            command="/update-request",
-                            label="Нет",
-                            data={
-                                "support_request": {
-                                    "subject": None,
-                                    "description": default_string,
-                                    "attachments_names": default_list,
-                                }
-                            },
-                        )
-                    ],
+                    [Button(command="/send-request", label="Да")],
+                    [Button(command="/update-request", label="Нет")],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),

@@ -4,10 +4,6 @@ from pybotx import BubbleMarkup
 
 from app.bot.commands.listing import HiddenCommands
 from app.resources import strings
-from app.schemas.support_request import (
-    SupportRequestInCreation,
-    SupportRequestInUpdating,
-)
 
 
 def get_confirm_cancel_bubbles() -> BubbleMarkup:
@@ -26,29 +22,17 @@ def get_confirm_cancel_bubbles() -> BubbleMarkup:
     return bubbles
 
 
-def get_confirm_request_bubbles(
-    request: SupportRequestInCreation | SupportRequestInUpdating,
-) -> BubbleMarkup:
+def get_confirm_request_bubbles() -> BubbleMarkup:
     """Get confirm support request bubbles."""
-
-    request_data = {
-        "support_request": {
-            "subject": request.subject,
-            "description": request.description,
-            "attachments_names": request.attachments_names,
-        }
-    }
 
     bubbles = BubbleMarkup()
     bubbles.add_button(
         command=HiddenCommands.SEND_REQUEST_COMMAND.command,
         label=strings.YES_LABEL,
-        data=request_data,
     )
     bubbles.add_button(
         command=HiddenCommands.UPDATE_SUPPORT_REQUEST_COMMAND.command,
         label=strings.NO_LABEL,
-        data=request_data,
     )
 
     return bubbles

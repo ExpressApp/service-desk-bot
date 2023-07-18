@@ -20,3 +20,19 @@ def get_invalid_attachment_keyboard() -> KeyboardMarkup:
     )
 
     return keyboard
+
+
+def get_back_to_confirm_keyboard() -> KeyboardMarkup:
+    """Get keyboard for back to confirm state."""
+
+    keyboard = KeyboardMarkup()
+    keyboard.add_button(
+        command=HiddenCommands.BACK_COMMAND.command,
+        label=strings.BACK_COMMAND_LABEL,
+    )
+    keyboard.add_button(
+        command=HiddenCommands.CANCEL_COMMAND.command,
+        label=strings.CANCEL_COMMAND_LABEL,
+    )
+
+    return keyboard

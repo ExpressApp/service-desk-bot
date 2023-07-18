@@ -9,11 +9,12 @@ class CreateSupportRequestStates(Enum):
     ENTER_DESCRIPTION = auto()
     WAIT_DECISION_ON_ATTACHMENT = auto()
     ADD_ATTACHMENT = auto()
+    CONFIRM_REQUEST = auto()
 
 
 class UpdateSupportRequestStates(Enum):
     """States to support request updating process."""
 
     SELECT_ATTRIBUTE = auto()
-    ENTER_NEW_DESCRIPTION = auto()
-    ADD_NEW_ATTACHMENT = auto()
+    ENTER_DESCRIPTION = auto()
+    ADD_ATTACHMENT = auto()

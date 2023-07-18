@@ -12,7 +12,10 @@ from app.bot.answers.bubbles.support_request import (
     get_skip_bubbles,
 )
 from app.bot.answers.keyboards.common import get_cancel_keyboard
-from app.bot.answers.keyboards.support_request import get_invalid_attachment_keyboard
+from app.bot.answers.keyboards.support_request import (
+    get_back_to_confirm_keyboard,
+    get_invalid_attachment_keyboard,
+)
 from app.resources import strings
 from app.schemas.support_request import (
     SupportRequestInCreation,
@@ -62,7 +65,7 @@ def build_confirm_request_message(
         bot_id=message.bot.id,
         chat_id=message.chat.id,
         body=strings.CONFIRM_REQUEST_TEMPLATE.format(request=request),
-        bubbles=get_confirm_request_bubbles(request=request),
+        bubbles=get_confirm_request_bubbles(),
         keyboard=get_cancel_keyboard(),
     )
 
@@ -141,7 +144,7 @@ def build_select_updating_attribute_message(
         chat_id=message.chat.id,
         body=strings.SELECT_UPDATING_ATTRIBUTE_MESSAGE,
         bubbles=get_select_attribute_bubbles(),
-        keyboard=get_cancel_keyboard(),
+        keyboard=get_back_to_confirm_keyboard(),
     )
 
 
@@ -160,4 +163,13 @@ def build_success_send_message(message: IncomingMessage) -> OutgoingMessage:
         chat_id=message.chat.id,
         body=strings.SUCCESS_SEND_MESSAGE,
         bubbles=get_default_bubbles(),
+    )
+
+
+def build_not_confirm_command_message(message: IncomingMessage) -> OutgoingMessage:
+    return OutgoingMessage(
+        bot_id=message.bot.id,
+        chat_id=message.chat.id,
+        body=strings.NOT_CONFIRM_COMMAND_MESSAGE,
+        keyboard=get_cancel_keyboard(),
     )

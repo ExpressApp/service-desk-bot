@@ -3,7 +3,7 @@
 from pybotx import Bot, HandlerCollector, IncomingMessage
 from pybotx_fsm import FSMCollector
 
-from app.bot.answers.messages.support_request import (
+from app.bot.answers.messages.support_request import (  # noqa: WPS235
     build_add_attachment_message,
     build_confirm_attachment_addition_message,
     build_confirm_request_message,
@@ -11,14 +11,24 @@ from app.bot.answers.messages.support_request import (
     build_enter_description_message,
     build_existing_attachments_message,
     build_invalid_attachment_message,
+    build_not_confirm_command_message,
+    build_select_updating_attribute_message,
     build_text_instead_attachment_message,
 )
 from app.bot.commands.listing import HiddenCommands, PublicCommands
+from app.bot.commands.support_request.send import send_support_request
 from app.bot.middlewares.confirm_cancel import confirm_cancel_middleware
-from app.bot.states.support_request import CreateSupportRequestStates
+from app.bot.states.support_request import (
+    CreateSupportRequestStates,
+    UpdateSupportRequestStates,
+)
 from app.db.repositories.service_desk import ServiceDeskRepo
 from app.resources import strings
-from app.schemas.support_request import SupportRequestInCreation
+from app.schemas.support_request import (
+    SupportRequestInCreation,
+    SupportRequestInUpdating,
+    SupportRequestToSend,
+)
 from app.settings import settings
 
 collector = HandlerCollector()
@@ -88,7 +98,9 @@ async def enter_support_request_description_handler(
         await bot.send(
             message=build_confirm_request_message(message, request=support_request)
         )
-        await message.state.fsm.drop_state()
+        await message.state.fsm.change_state(
+            CreateSupportRequestStates.CONFIRM_REQUEST, support_request=support_request
+        )
         return
 
     await bot.send(message=build_confirm_attachment_addition_message(message))
@@ -139,7 +151,9 @@ async def wait_decision_on_attachment_handler(
         await bot.send(
             message=build_confirm_request_message(message, request=support_request)
         )
-        await message.state.fsm.drop_state()
+        await message.state.fsm.change_state(
+            CreateSupportRequestStates.CONFIRM_REQUEST, support_request=support_request
+        )
         return
     else:
         await bot.send(message=build_confirm_attachment_addition_message(message))
@@ -147,7 +161,7 @@ async def wait_decision_on_attachment_handler(
 
 @fsm.on(CreateSupportRequestStates.ADD_ATTACHMENT)
 async def add_attachment_handler(message: IncomingMessage, bot: Bot) -> None:
-    """Add request attachments and drop state (FSM)."""
+    """Add request attachments and switch to next state (FSM)."""
 
     command = message.body
     attachment = message.file
@@ -171,7 +185,9 @@ async def add_attachment_handler(message: IncomingMessage, bot: Bot) -> None:
         await bot.send(
             message=build_confirm_request_message(message, request=support_request)
         )
-        await message.state.fsm.drop_state()
+        await message.state.fsm.change_state(
+            CreateSupportRequestStates.CONFIRM_REQUEST, support_request=support_request
+        )
         return
 
     if not attachment:
@@ -193,3 +209,37 @@ async def add_attachment_handler(message: IncomingMessage, bot: Bot) -> None:
     await message.state.fsm.change_state(
         CreateSupportRequestStates.ADD_ATTACHMENT, support_request=support_request
     )
+
+
+@fsm.on(CreateSupportRequestStates.CONFIRM_REQUEST)
+async def add_confirm_request_handler(message: IncomingMessage, bot: Bot) -> None:
+    """Confirm request and drop state (FSM)."""
+
+    command = message.body
+
+    if not command or command not in {  # noqa: WPS337
+        HiddenCommands.SEND_REQUEST_COMMAND.command,
+        HiddenCommands.UPDATE_SUPPORT_REQUEST_COMMAND.command,
+    }:
+        await bot.send(message=build_not_confirm_command_message(message))
+        return
+
+    support_request: SupportRequestInCreation = (
+        message.state.fsm_storage.support_request
+    )
+    await message.state.fsm.drop_state()
+
+    if command == HiddenCommands.SEND_REQUEST_COMMAND.command:
+        support_request_to_send = SupportRequestToSend(**support_request.dict())
+
+        await send_support_request(
+            message, bot, support_request=support_request_to_send
+        )
+    else:
+        support_request_in_updating = SupportRequestInUpdating(**support_request.dict())
+
+        await bot.send(message=build_select_updating_attribute_message(message))
+        await message.state.fsm.change_state(
+            state=UpdateSupportRequestStates.SELECT_ATTRIBUTE,
+            support_request=support_request_in_updating,
+        )

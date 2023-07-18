@@ -58,6 +58,13 @@ class AppSettings(BaseSettings):  # noqa: WPS338
     VERIFY_SSL: bool = False
     ACCESS_TYPE: Literal["delegate", "impersonation"] = "delegate"
 
+    @validator("APP_NAME", pre=True)
+    @classmethod
+    def check_app_name(cls, app_name: str) -> str:
+        """Return default value if APP_NAME is empty string."""
+
+        return app_name or "eXpress"
+
     @classmethod
     def _build_credentials_from_string(
         cls, credentials_str: str
@@ -77,6 +84,7 @@ class AppSettings(BaseSettings):  # noqa: WPS338
 
         Each entry must be separated by "@" or "|".
         """
+
         if not raw_credentials:
             return []
 
@@ -89,6 +97,7 @@ class AppSettings(BaseSettings):  # noqa: WPS338
     @classmethod
     def parse_smartlog_debug_huids(cls, raw_huids: Any) -> list[UUID]:
         """Parse debug huids separated by comma."""
+
         if not raw_huids:
             return []
 

@@ -43,6 +43,11 @@ def default_string() -> str:
     return "lorem ipsum"
 
 
+@pytest.fixture
+def default_list() -> list[str]:
+    return ["lorem ipsum", "dolor sit amet"]
+
+
 @pytest.hookimpl(trylast=True)
 def pytest_collection_modifyitems(items: list[pytest.Function]) -> None:
     # We can't use autouse, because it appends fixture to the end
