@@ -39,8 +39,10 @@ async def test__confirm_cancel_middleware__cancel_command(
             ),
             bubbles=BubbleMarkup(
                 [
-                    [Button(command="/confirm-cancel", label="Да")],
-                    [Button(command="/refuse-cancel", label="Нет")],
+                    [
+                        Button(command="/confirm-cancel", label="Да"),
+                        Button(command="/refuse-cancel", label="Нет"),
+                    ],
                 ]
             ),
         ),
@@ -114,8 +116,10 @@ async def test__confirm_cancel_middleware__other_command(
             ),
             bubbles=BubbleMarkup(
                 [
-                    [Button(command="/confirm-attachment-addition", label="Да")],
-                    [Button(command="/refuse-attachment-addition", label="Нет")],
+                    [
+                        Button(command="/confirm-attachment-addition", label="Да"),
+                        Button(command="/refuse-attachment-addition", label="Нет"),
+                    ],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
@@ -156,8 +160,10 @@ async def test__confirm_cancel_middleware__refuse_cancel_command__confirm_reques
             ),
             bubbles=BubbleMarkup(
                 [
-                    [Button(command="/send-request", label="Да")],
-                    [Button(command="/update-request", label="Нет")],
+                    [
+                        Button(command="/send-request", label="Да"),
+                        Button(command="/update-request", label="Нет"),
+                    ],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
@@ -293,8 +299,10 @@ async def test__confirm_cancel_middleware__refuse_command__other_state(
             ),
             bubbles=BubbleMarkup(
                 [
-                    [Button(command="/confirm-attachment-addition", label="Да")],
-                    [Button(command="/refuse-attachment-addition", label="Нет")],
+                    [
+                        Button(command="/confirm-attachment-addition", label="Да"),
+                        Button(command="/refuse-attachment-addition", label="Нет"),
+                    ]
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),

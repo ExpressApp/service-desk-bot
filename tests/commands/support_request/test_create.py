@@ -146,8 +146,10 @@ async def test__enter_support_request_description_handler__without_attachment(
             ),
             bubbles=BubbleMarkup(
                 [
-                    [Button(command="/confirm-attachment-addition", label="Да")],
-                    [Button(command="/refuse-attachment-addition", label="Нет")],
+                    [
+                        Button(command="/confirm-attachment-addition", label="Да"),
+                        Button(command="/refuse-attachment-addition", label="Нет"),
+                    ],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
@@ -251,8 +253,10 @@ async def test__enter_support_request_description_handler__valid_attachment(  # 
             ),
             bubbles=BubbleMarkup(
                 [
-                    [Button(command="/send-request", label="Да")],
-                    [Button(command="/update-request", label="Нет")],
+                    [
+                        Button(command="/send-request", label="Да"),
+                        Button(command="/update-request", label="Нет"),
+                    ],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
@@ -295,8 +299,10 @@ async def test__wait_decision_on_attachment_handler__empty_message(
             ),
             bubbles=BubbleMarkup(
                 [
-                    [Button(command="/confirm-attachment-addition", label="Да")],
-                    [Button(command="/refuse-attachment-addition", label="Нет")],
+                    [
+                        Button(command="/confirm-attachment-addition", label="Да"),
+                        Button(command="/refuse-attachment-addition", label="Нет"),
+                    ],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
@@ -339,8 +345,10 @@ async def test__wait_decision_on_attachment_handler__text_instead_command(
             ),
             bubbles=BubbleMarkup(
                 [
-                    [Button(command="/confirm-attachment-addition", label="Да")],
-                    [Button(command="/refuse-attachment-addition", label="Нет")],
+                    [
+                        Button(command="/confirm-attachment-addition", label="Да"),
+                        Button(command="/refuse-attachment-addition", label="Нет"),
+                    ],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
@@ -390,8 +398,10 @@ async def test__wait_decision_on_attachment_handler__refuse_command(
             ),
             bubbles=BubbleMarkup(
                 [
-                    [Button(command="/send-request", label="Да")],
-                    [Button(command="/update-request", label="Нет")],
+                    [
+                        Button(command="/send-request", label="Да"),
+                        Button(command="/update-request", label="Нет"),
+                    ],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
@@ -673,8 +683,10 @@ async def test__add_attachment_handler__skip_command(
             ),
             bubbles=BubbleMarkup(
                 [
-                    [Button(command="/send-request", label="Да")],
-                    [Button(command="/update-request", label="Нет")],
+                    [
+                        Button(command="/send-request", label="Да"),
+                        Button(command="/update-request", label="Нет"),
+                    ],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
@@ -722,8 +734,10 @@ async def test__add_attachment_handler__confirm_request_command(
             ),
             bubbles=BubbleMarkup(
                 [
-                    [Button(command="/send-request", label="Да")],
-                    [Button(command="/update-request", label="Нет")],
+                    [
+                        Button(command="/send-request", label="Да"),
+                        Button(command="/update-request", label="Нет"),
+                    ],
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
@@ -864,7 +878,7 @@ async def test__add_confirm_request_handler__update_request_command(
             ),
             keyboard=KeyboardMarkup(
                 [
-                    [Button(command="/back", label="Назад")],
+                    [Button(command="/back", label="НАЗАД")],
                     [Button(command="/cancel", label="ОТМЕНА")],
                 ]
             ),

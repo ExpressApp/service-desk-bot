@@ -17,6 +17,7 @@ def get_confirm_cancel_bubbles() -> BubbleMarkup:
     bubbles.add_button(
         command=HiddenCommands.REFUSE_CANCEL_COMMAND.command,
         label=strings.NO_LABEL,
+        new_row=False,
     )
 
     return bubbles
@@ -33,6 +34,7 @@ def get_confirm_request_bubbles() -> BubbleMarkup:
     bubbles.add_button(
         command=HiddenCommands.UPDATE_SUPPORT_REQUEST_COMMAND.command,
         label=strings.NO_LABEL,
+        new_row=False,
     )
 
     return bubbles
@@ -49,6 +51,7 @@ def get_confirm_attachment_addition_bubbles() -> BubbleMarkup:
     bubbles.add_button(
         command=HiddenCommands.REFUSE_ATTACHMENT_ADDITION_COMMAND.command,
         label=strings.NO_LABEL,
+        new_row=False,
     )
 
     return bubbles
