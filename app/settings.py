@@ -51,6 +51,7 @@ class AppSettings(BaseSettings):  # noqa: WPS338
     # templates:
     SHOW_SENDER_NAME_IN_EMAIL_TITLE: bool | None = True
     EMAIL_TITLE: str = "Обращение по eXpress"
+    SHOW_SENDER_PHONE_IN_EMAIL_BODY: bool | None = True
 
     # exchange:
     MAIL_SERVER: str
@@ -68,6 +69,24 @@ class AppSettings(BaseSettings):  # noqa: WPS338
         """Return default value if APP_NAME is empty string."""
 
         return app_name or "eXpress"
+
+    @validator("SHOW_SENDER_NAME_IN_EMAIL_TITLE", pre=True)
+    @classmethod
+    def check_show_sender_name_in_email_title(
+        cls, show_sender_name_in_email_title: bool | None
+    ) -> bool:
+        """Return default value if SHOW_SENDER_NAME_IN_EMAIL_TITLE is None."""
+
+        return show_sender_name_in_email_title or True
+
+    @validator("SHOW_SENDER_PHONE_IN_EMAIL_BODY", pre=True)
+    @classmethod
+    def check_show_sender_phone_in_email_body(
+        cls, show_sender_phone_in_email_body: bool | None
+    ) -> bool:
+        """Return default value if SHOW_SENDER_PHONE_IN_EMAIL_BODY is None."""
+
+        return show_sender_phone_in_email_body or True
 
     @validator("EMAIL_TITLE", pre=True)
     @classmethod
