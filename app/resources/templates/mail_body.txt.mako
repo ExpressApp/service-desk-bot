@@ -1,7 +1,9 @@
 Описание проблемы: ${ request.description }
 ФИО: ${ message.sender.username }
 E-mail: ${ ", ".join(user.emails) if user.emails else "-"}
-Номер мобильного телефона: ${ message.sender.ad_login }
+% if show_sender_phone_in_email_body:
+Номер мобильного телефона: ${ user.other_id }
+% endif
 Компания: ${ user.company }
 Должность: ${ user.company_position }
 Отдел: ${ user.department }

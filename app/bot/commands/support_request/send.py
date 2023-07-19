@@ -46,6 +46,7 @@ async def send_support_request(  # noqa: WPS210
         platform=user_platform,
         app_name=settings.APP_NAME,
         host=cts.host,
+        show_sender_phone_in_email_body=settings.SHOW_SENDER_PHONE_IN_EMAIL_BODY,
     )
 
     ews_account = await get_ews_account(
