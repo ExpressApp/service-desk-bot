@@ -167,6 +167,7 @@ async def test__confirm_cancel_middleware__refuse_cancel_command__confirm_reques
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
+            silent_response=True,
         ),
     )
 
@@ -212,6 +213,7 @@ async def test__confirm_cancel_middleware__refuse_command__add_first_attachment_
             ),
             bubbles=BubbleMarkup([[Button(command="/skip", label="Пропустить")]]),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
+            silent_response=True,
         ),
     )
 
@@ -260,6 +262,7 @@ async def test__confirm_cancel_middleware__refuse_command__add_attachment_state(
                 [[Button(command="/send-to-confirm", label="Отправить обращение")]]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
+            silent_response=True,
         ),
     )
 

@@ -54,6 +54,7 @@ def build_invalid_attachment_message(message: IncomingMessage) -> OutgoingMessag
         chat_id=message.chat.id,
         body=strings.INVALID_ATTACHMENT_MESSAGE,
         keyboard=get_invalid_attachment_keyboard(),
+        silent_response=True,
     )
 
 
@@ -67,6 +68,7 @@ def build_confirm_request_message(
         body=strings.CONFIRM_REQUEST_TEMPLATE.format(request=request),
         bubbles=get_confirm_request_bubbles(),
         keyboard=get_cancel_keyboard(),
+        silent_response=True,
     )
 
 
@@ -107,6 +109,7 @@ def build_add_attachment_message(message: IncomingMessage) -> OutgoingMessage:
         body=strings.ADD_ATTACHMENT_MESSAGE,
         bubbles=get_skip_bubbles(),
         keyboard=get_cancel_keyboard(),
+        silent_response=True,
     )
 
 
@@ -123,6 +126,7 @@ def build_existing_attachments_message(
         body=answer_body,
         bubbles=get_send_request_bubbles(),
         keyboard=get_cancel_keyboard(),
+        silent_response=True,
     )
 
 
@@ -133,6 +137,7 @@ def build_text_instead_attachment_message(message: IncomingMessage) -> OutgoingM
         body=strings.TEXT_INSTEAD_ATTACHMENT_MESSAGE,
         bubbles=get_skip_bubbles(),
         keyboard=get_cancel_keyboard(),
+        silent_response=True,
     )
 
 

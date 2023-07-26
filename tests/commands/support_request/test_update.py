@@ -181,6 +181,7 @@ async def test__select_updating_attribute_handler__update_attachment_command(
             ),
             bubbles=BubbleMarkup([[Button(command="/skip", label="Пропустить")]]),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
+            silent_response=True,
         ),
     )
 
@@ -345,6 +346,7 @@ async def test__enter_new_description_handler(
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
+            silent_response=True,
         )
     )
 
@@ -387,6 +389,7 @@ async def test__add_attachment_handler__text_instead_attachment(
             ),
             bubbles=BubbleMarkup([[Button(command="/skip", label="Пропустить")]]),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
+            silent_response=True,
         ),
     )
 
@@ -442,6 +445,7 @@ async def test__add_attachment_handler__invalid_attachment(
                     [Button(command="/cancel", label="ОТМЕНА")],
                 ]
             ),
+            silent_response=True,
         ),
     )
 
@@ -507,6 +511,7 @@ async def test__add_attachment_handler__valid_attachment(  # noqa: WPS218
                 [[Button(command="/send-to-confirm", label="Отправить обращение")]]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
+            silent_response=True,
         ),
     )
 
@@ -557,6 +562,7 @@ async def test__add_attachment_handler__skip_command(
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
+            silent_response=True,
         ),
     )
 
@@ -616,5 +622,6 @@ async def test__add_attachment_handler__confirm_request_command(
                 ]
             ),
             keyboard=KeyboardMarkup([[Button(command="/cancel", label="ОТМЕНА")]]),
+            silent_response=True,
         ),
     )
