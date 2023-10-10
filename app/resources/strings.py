@@ -129,7 +129,7 @@ ADD_ATTACHMENT_MESSAGE = "".join(
         f" более {PRETTY_MAX_ATTACHMENT_SIZE} каждый и не более {PRETTY_MAX_ATTACHMENTS_SIZE}",
         " суммарно.",
         "\n\nПосле того, как все необходимые файлы будут загружены, нажмите кнопку",
-        ' "**Отправить обращение**" под полем для ввода сообщений.',
+        ' "**Отправить обращение**".',
     )
 )
 TEXT_INSTEAD_ATTACHMENT_MESSAGE = "".join(
