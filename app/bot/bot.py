@@ -33,6 +33,12 @@ def get_bot(callback_repo: CallbackRepoProto, raise_exceptions: bool) -> Bot:
         httpx_client=AsyncClient(
             timeout=60,
             limits=Limits(max_keepalive_connections=None, max_connections=None),
+            verify=settings.CUSTOM_CA_CERT_PATH or settings.VERIFY_SSL,
+            cert=(
+                (settings.CLIENT_CERT_PATH, settings.CLIENT_CERT_KEY_PATH)
+                if (settings.CLIENT_CERT_PATH and settings.CLIENT_CERT_KEY_PATH)
+                else None
+            ),
         ),
         middlewares=[
             smart_logger_middleware,

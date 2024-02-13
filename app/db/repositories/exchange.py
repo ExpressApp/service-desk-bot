@@ -23,7 +23,10 @@ if settings.VERIFY_SSL:
 
         def cert_verify(self, conn, url, verify, cert):  # type: ignore # noqa: D102
             super().cert_verify(
-                conn=conn, url=url, verify=settings.CUSTOM_CA_CERT_PATH, cert=cert
+                conn=conn,
+                url=url,
+                verify=settings.EXCHANGE_CUSTOM_CA_PATH or settings.CUSTOM_CA_CERT_PATH,
+                cert=cert,
             )
 
     BaseProtocol.HTTP_ADAPTER_CLS = RootCAAdapter
