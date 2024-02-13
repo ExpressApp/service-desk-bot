@@ -21,6 +21,11 @@ class AppSettings(BaseSettings):  # noqa: WPS338
     # base kwargs:
     DEBUG: bool = False
 
+    # certificates:
+    CUSTOM_CA_CERT_PATH: str = ""
+    CLIENT_CERT_PATH: str = ""
+    CLIENT_CERT_KEY_PATH: str = ""
+
     # TODO: Change type to `list[UUID]` after closing:
     # https://github.com/samuelcolvin/pydantic/issues/1458
     # User huids for debug
@@ -62,6 +67,7 @@ class AppSettings(BaseSettings):  # noqa: WPS338
     AUTH_METHOD: AuthMethods = AuthMethods.BASIC
     VERIFY_SSL: bool = False
     ACCESS_TYPE: Literal["delegate", "impersonation"] = "delegate"
+    EXCHANGE_CUSTOM_CA_PATH: str = ""
 
     @validator("APP_NAME", pre=True)
     @classmethod
