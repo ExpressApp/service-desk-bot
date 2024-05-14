@@ -117,6 +117,7 @@ variables:
 stages:
   - check
   - build
+  - security
   - deploy
   - publish
 
@@ -152,6 +153,16 @@ test:
   script:
     - poetry run pytest --cov-config=setup.cfg
   coverage: '/Total coverage: \d\d\d.\d\d%/'
+
+security:
+  stage: security
+  allow_failure: true
+  trigger:
+    include:
+      - project: devsecops/pipelines
+        file: integration_templates/python.yml
+
+
 
 build:
   image: docker:latest
