@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM registry.ccsteam.ru/bots-cicd-images/python:3.10.13-alpine
 
 ENV PYTHONUNBUFFERED 1
 ENV UVICORN_CMD_ARGS ""
@@ -6,16 +6,13 @@ ENV UVICORN_CMD_ARGS ""
 EXPOSE 8000
 
 # Install system-wide dependencies
-RUN apt-get update && \
-  apt-get install --no-install-recommends -y git curl gcc && \
-  python3 -m pip install setuptools && \
-  apt-get clean autoclean && \
-  apt-get autoremove --yes && \
-  rm -rf /var/lib/apt/lists/*
+RUN apk update \
+    && apk add --no-cache --clean-protected git curl gcc python3-dev \
+    && rm -rf /var/cache/apk/*
 
 # Create user for app
 ENV APP_USER=appuser
-RUN useradd --create-home $APP_USER
+RUN adduser -D $APP_USER
 WORKDIR /home/$APP_USER
 USER $APP_USER
 
