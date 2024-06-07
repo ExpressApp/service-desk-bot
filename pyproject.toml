@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "service-desk-bot"
-version = "0.1.0"
+version = "1.0.4"
 description = ""
 authors = []
 
@@ -22,7 +22,7 @@ gunicorn = "~20.1.0"
 
 loguru = ">=0.6.0,<0.7.0"
 mako = "~1.2.2"
-pydantic = { version = "~1.10.4", extras = ["dotenv"] }
+pydantic = { version = "~1.10.4", extras = ["dotenv", "email"] }
 
 alembic = "~1.7.6"
 SQLAlchemy = "~2.0.0"
@@ -35,6 +35,9 @@ saq = { version = "~0.7.1", extras = ["hiredis"] }
 importlib-resources = { version = "^5.4.0", python = "<3.9" }
 zipp = { version = "^3.7.0", python = "<3.9" }
 importlib-metadata = { version = "^4.11.0", python = "<3.9" }
+types-aiofiles = "^23.1.0.4"
+exchangelib = "5.1.0"
+types-requests = "^2.31.0.1"
 
 
 [tool.poetry.dev-dependencies]

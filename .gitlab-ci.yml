@@ -16,6 +16,15 @@
     -e REDIS_DSN="${REDIS_DSN}"
     -e BOT_CREDENTIALS="${BOT_CREDENTIALS}"
     -e DEBUG="${DEBUG:-false}"
+    -e MAIL_SERVER="$MAIL_SERVER"
+    -e MAIL_USERNAME="$MAIL_USERNAME"
+    -e MAIL_PASSWORD="$MAIL_PASSWORD"
+    -e SENDER_EMAIL="$SENDER_EMAIL"
+    -e RECIPIENT_EMAIL="$RECIPIENT_EMAIL"
+    -e APP_NAME="$APP_NAME"
+    -e SHOW_SENDER_NAME_IN_EMAIL_TITLE="$SHOW_SENDER_NAME_IN_EMAIL_TITLE"
+    -e EMAIL_TITLE="$EMAIL_TITLE"
+    -e SHOW_SENDER_PHONE_IN_EMAIL_BODY="$SHOW_SENDER_PHONE_IN_EMAIL_BODY"
     ${CONTAINER_RELEASE_IMAGE}
   - docker rm -f ${CONTAINER_NAME}-worker || true
   # Add envs for worker here
@@ -29,6 +38,15 @@
     -e REDIS_DSN="${REDIS_DSN}"
     -e BOT_CREDENTIALS="${BOT_CREDENTIALS}"
     -e DEBUG="${DEBUG:-false}"
+    -e MAIL_SERVER="$MAIL_SERVER"
+    -e MAIL_USERNAME="$MAIL_USERNAME"
+    -e MAIL_PASSWORD="$MAIL_PASSWORD"
+    -e SENDER_EMAIL="$SENDER_EMAIL"
+    -e RECIPIENT_EMAIL="$RECIPIENT_EMAIL"
+    -e APP_NAME="$APP_NAME"
+    -e SHOW_SENDER_NAME_IN_EMAIL_TITLE="$SHOW_SENDER_NAME_IN_EMAIL_TITLE"
+    -e EMAIL_TITLE="$EMAIL_TITLE"
+    -e SHOW_SENDER_PHONE_IN_EMAIL_BODY="$SHOW_SENDER_PHONE_IN_EMAIL_BODY"
     ${CONTAINER_RELEASE_IMAGE}
     bash -c 'PYTHONPATH="$PYTHONPATH:$PWD" saq app.worker.worker.settings'
 
@@ -59,6 +77,38 @@
   - POSTGRES_HOST=${PROD_POSTGRES_HOST}
   - POSTGRES_DSN=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST/$POSTGRES_DB
 
+.publish_eXpress_public_registry_before_script: &publish_eXpress_public_registry_before_script
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  - docker login -u $PUBLIC_REGISTRY_USER -p $PUBLIC_REGISTRY_PASSWORD $PUBLIC_REGISTRY
+  - docker pull $CONTAINER_RELEASE_IMAGE
+  - docker tag $CONTAINER_RELEASE_IMAGE $CONTAINER_PUBLIC_RELEASE_IMAGE
+
+.publish_eXpress_public_registry_script: &publish_eXpress_public_registry_script
+  - docker push $CONTAINER_PUBLIC_RELEASE_IMAGE
+
+.publish_eXpress_public_registry_after_script: &publish_eXpress_public_registry_after_script
+  - docker rmi $CONTAINER_RELEASE_IMAGE || true
+  - docker rmi $CONTAINER_PUBLIC_RELEASE_IMAGE || true
+
+.eXpress_public_registry:
+  stage: publish
+  image: registry.ccsteam.ru/cicd-images/docker:latest
+  tags:
+    - docker
+  only:
+    - tags
+  when: manual
+  environment:
+    name: publish
+  variables:
+    # https://docs.gitlab.com/ee/ci/runners/configure_runners.html#git-strategy
+    GIT_STRATEGY: none
+    CONTAINER_RELEASE_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
+    PROJECT_PUBLIC_REGISTRY_PATH: "$PUBLIC_REGISTRY/$PUBLIC_REGISTRY_CATALOG/$CI_PROJECT_NAME"
+    CONTAINER_PUBLIC_RELEASE_IMAGE: "$PROJECT_PUBLIC_REGISTRY_PATH:$CI_COMMIT_TAG"
+    CONTAINER_PUBLIC_LATEST_RELEASE_IMAGE: "$PROJECT_PUBLIC_REGISTRY_PATH:latest"
+
+
 # Jobs
 variables:
   GIT_DEPTH: 1  # Fetch only latest commit
@@ -67,13 +117,15 @@ variables:
 stages:
   - check
   - build
+  - security
   - deploy
+  - publish
 
 default:
   interruptible: true
 
 lint:
-  image: python:3.10
+  image: registry.ccsteam.ru/bots-cicd-images/python:3.10.13-slim
   stage: check
   tags:
     - docker
@@ -84,15 +136,20 @@ lint:
     - poetry run ./scripts/lint
 
 test:
-  image: python:3.10
+  image: registry.ccsteam.ru/bots-cicd-images/python:3.10.13-slim
   stage: check
   tags:
     - docker
   services:
-    - postgres:11.4-alpine
-    - redis:6.0.1-alpine
+      - name: registry.ccsteam.ru/bots-cicd-images/postgres:15.3-alpine
+        alias: postgres
+      - name: registry.ccsteam.ru/bots-cicd-images/redis:7.0-alpine
+        alias: redis
   cache: *cache_dependencies
   variables:
+    POSTGRES_DB: "postgres"
+    POSTGRES_USERNAME: "postgres"
+    POSTGRES_PASSWORD: "postgres"
     BOT_CREDENTIALS: cts.example.com@secret@123e4567-e89b-12d3-a456-426655440000
     POSTGRES_DSN: postgres://postgres:postgres@postgres/postgres
     REDIS_DSN: redis://redis/0
@@ -102,17 +159,27 @@ test:
     - poetry run pytest --cov-config=setup.cfg
   coverage: '/Total coverage: \d\d\d.\d\d%/'
 
+security:
+  stage: security
+  allow_failure: true
+  trigger:
+    include:
+      - project: devsecops/pipelines
+        file: integration_templates/python.yml
+
+
+
 build:
-  image: docker:latest
+  image: registry.ccsteam.ru/cicd-images/docker:latest
   stage: build
   tags:
     - docker
   before_script:
     - docker info
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - CONTAINER_RELEASE_IMAGE="$CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}"
   script:
     - docker pull $CONTAINER_RELEASE_IMAGE || true
+    - docker login -u gitlab -p ${BOTS_CICD_IMAGES_TOKEN} ${CI_REGISTRY}
     - docker build
       --cache-from $CONTAINER_RELEASE_IMAGE
       --build-arg GIT_HOST=$GIT_HOST
@@ -120,11 +187,12 @@ build:
       --build-arg CI_COMMIT_SHA=$CI_COMMIT_SHA
       --force-rm
       -t $CONTAINER_RELEASE_IMAGE .
+    - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
     - docker push $CONTAINER_RELEASE_IMAGE
     - docker rmi $CONTAINER_RELEASE_IMAGE
 
 deploy.botstest:
-  image: docker:latest
+  image: registry.ccsteam.ru/cicd-images/docker:latest
   stage: deploy
   tags:
     - bots-test
@@ -166,7 +234,7 @@ deploy.botstest.stop:
 
 deploy.botsprod:
   stage: deploy
-  image: docker:latest
+  image: registry.ccsteam.ru/cicd-images/docker:latest
   tags:
     - bots-prod
   only:
@@ -192,3 +260,21 @@ deploy.botsprod:
     - echo "Deploing Docker container ${CONTAINER_NAME}"
     - *create_db
     - *run_bot
+
+eXpress_public_registry:
+  extends: .eXpress_public_registry
+  before_script: *publish_eXpress_public_registry_before_script
+  script: *publish_eXpress_public_registry_script
+  after_script: *publish_eXpress_public_registry_after_script
+
+eXpress_public_registry.as_latest:
+  extends: .eXpress_public_registry
+  before_script:
+    - *publish_eXpress_public_registry_before_script
+    - docker tag $CONTAINER_RELEASE_IMAGE $CONTAINER_PUBLIC_LATEST_RELEASE_IMAGE
+  script:
+    - *publish_eXpress_public_registry_script
+    - docker push $CONTAINER_PUBLIC_LATEST_RELEASE_IMAGE
+  after_script:
+    - *publish_eXpress_public_registry_after_script
+    - docker rmi $CONTAINER_PUBLIC_LATEST_RELEASE_IMAGE || true
