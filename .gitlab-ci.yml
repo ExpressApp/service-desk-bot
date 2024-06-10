@@ -236,7 +236,7 @@ deploy.botsprod:
   stage: deploy
   image: registry.ccsteam.ru/cicd-images/docker:latest
   tags:
-    - bots-prod
+    - botsprod-yac
   only:
     # Note the bots-prod worker requires branch to be protected
     - master
