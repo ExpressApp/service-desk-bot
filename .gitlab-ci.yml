@@ -48,7 +48,7 @@
     -e EMAIL_TITLE="$EMAIL_TITLE"
     -e SHOW_SENDER_PHONE_IN_EMAIL_BODY="$SHOW_SENDER_PHONE_IN_EMAIL_BODY"
     ${CONTAINER_RELEASE_IMAGE}
-    bash -c 'PYTHONPATH="$PYTHONPATH:$PWD" saq app.worker.worker.settings'
+    sh -c 'PYTHONPATH="$PYTHONPATH:$PWD" saq app.worker.worker.settings $SAQ_CMD_ARGS'
 
 .create_db: &create_db
   - psql -c "create user \"${POSTGRES_USER}\"" postgres || true
