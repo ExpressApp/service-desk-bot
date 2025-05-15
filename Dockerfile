@@ -10,7 +10,10 @@ RUN apk update \
     && apk add --no-cache --clean-protected git curl gcc python3-dev \
     && rm -rf /var/cache/apk/*
 
-RUN apk upgrade
+# Update unsecure package in global root scope
+RUN pip install --no-cache-dir setuptools==70.0.0
+COPY ./upgrade-packages.sh ./apk-packages.txt ./
+RUN ./upgrade-packages.sh
 
 # Create user for app
 ENV APP_USER=appuser
@@ -23,10 +26,10 @@ ENV VENV_PATH=/home/$APP_USER/.venv/bin
 ENV USER_PATH=/home/$APP_USER/.local/bin
 ENV PATH="$VENV_PATH:$USER_PATH:$PATH"
 
-RUN pip install --user --no-cache-dir poetry && \
+RUN pip install --no-cache-dir poetry==2.1.2 && \
   poetry config virtualenvs.in-project true
 
-COPY poetry.lock pyproject.toml ./
+COPY pyproject.toml ./
 
 RUN poetry lock && poetry install --no-root --only main
 
