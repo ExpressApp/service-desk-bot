@@ -8,27 +8,27 @@ authors = []
 
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"
+python = ">=3.9,<3.12"
 
-pybotx = "~0.55.2"
+pybotx = "^0.73.4"
 pybotx-smart-logger = "~0.10.1"
 
 pybotx-fsm = "~0.4.9"
 
 
-fastapi = "0.95.2"
+fastapi = "~0.115.12"
 uvicorn = { version = "~0.17.5", extras = ["standart"] }
-gunicorn = "~20.1.0"
-
+gunicorn = "~23.0.0"
+setuptools = "~77.0.1"
 loguru = ">=0.6.0,<0.7.0"
 mako = "~1.2.2"
 pydantic = { version = "~1.10.4", extras = ["dotenv", "email"] }
-
+virtualenv = "~20.26.6"
 alembic = "~1.7.6"
 SQLAlchemy = "~2.0.0"
 asyncpg = "~0.25.0"  # DB backend for application
 psycopg2-binary = "~2.9.2"  # DB backend for alembic (migration tool)
-
+starlette = "~0.40.0"
 redis = "~4.4.4"
 saq = { version = "~0.7.1", extras = ["hiredis"] }
 
@@ -58,7 +58,7 @@ pytest-cov = "~3.0.0"
 asgi-lifespan = "~1.0.1"
 requests = "~2.31.0"
 respx = "~0.19.2"
-httpx = "0.23.0"
+httpx = "~0.25.0"
 
 markdown = "3.3.6"  # https://github.com/python-poetry/poetry/issues/4777
 
