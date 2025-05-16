@@ -13,6 +13,7 @@ RUN apk update \
 # Update unsecure package in global root scope
 RUN pip install --no-cache-dir setuptools==70.0.0
 COPY ./upgrade-packages.sh ./apk-packages.txt ./
+RUN chmod +x upgrade-packages.sh
 RUN ./upgrade-packages.sh
 
 # Create user for app
@@ -41,4 +42,5 @@ RUN mkdir ./attachments
 ARG CI_COMMIT_SHA=""
 ENV GIT_COMMIT_SHA=${CI_COMMIT_SHA}
 
-CMD python -m http.server
+CMD alembic upgrade head && \
+   gunicorn "app.main:get_application()" --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0
