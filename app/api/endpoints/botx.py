@@ -26,7 +26,9 @@ async def command_handler(request: Request, bot: Bot = bot_dependency) -> JSONRe
     """Receive commands from users. Max timeout - 5 seconds."""
 
     try:
-        bot.async_execute_raw_bot_command(await request.json())
+        bot.async_execute_raw_bot_command(
+            await request.json(), verify_request=settings.VERIFY_REQUEST
+        )
     except ValueError:
         error_label = "Bot command validation error"
 
@@ -69,7 +71,9 @@ async def status_handler(request: Request, bot: Bot = bot_dependency) -> JSONRes
     """Show bot status and commands list."""
 
     try:
-        status = await bot.raw_get_status(dict(request.query_params))
+        status = await bot.raw_get_status(
+            dict(request.query_params), verify_request=settings.VERIFY_REQUEST
+        )
     except UnknownBotAccountError as exc:
         error_label = f"Unknown bot_id: {exc.bot_id}"
         logger.warning(exc)
@@ -92,7 +96,9 @@ async def callback_handler(request: Request, bot: Bot = bot_dependency) -> JSONR
     """Process BotX methods callbacks."""
 
     try:
-        await bot.set_raw_botx_method_result(await request.json())
+        await bot.set_raw_botx_method_result(
+            await request.json(), verify_request=settings.VERIFY_REQUEST
+        )
     except BotXMethodCallbackNotFoundError as exc:
         error_label = f"Unexpected callback with sync_id: {exc.sync_id}"
         logger.warning(error_label)
