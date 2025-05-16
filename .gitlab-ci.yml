@@ -153,6 +153,7 @@ test:
     BOT_CREDENTIALS: cts.example.com@secret@123e4567-e89b-12d3-a456-426655440000
     POSTGRES_DSN: postgres://postgres:postgres@postgres/postgres
     REDIS_DSN: redis://redis/0
+    VERIFY_REQUEST: false
   before_script:
     - *install_dependencies
   script:
