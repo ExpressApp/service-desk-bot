@@ -111,7 +111,9 @@ class AppSettings(BaseSettings):  # noqa: WPS338
         host, secret_key, bot_id = [
             str_value.strip() for str_value in credentials_str.split("@")
         ]
-        return BotAccountWithSecret(id=UUID(bot_id), host=host, secret_key=secret_key)
+        return BotAccountWithSecret(
+            id=UUID(bot_id), host=host, secret_key=secret_key
+        )  # type: ignore[call-arg]
 
     @validator("BOT_CREDENTIALS", pre=True)
     @classmethod
@@ -140,4 +142,4 @@ class AppSettings(BaseSettings):  # noqa: WPS338
         return [UUID(huid) for huid in raw_huids.split(",")]
 
 
-settings = AppSettings()
+settings = AppSettings()  # type: ignore[call-arg]

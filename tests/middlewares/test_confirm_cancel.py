@@ -187,7 +187,7 @@ async def test__confirm_cancel_middleware__refuse_command__add_first_attachment_
         state=CreateSupportRequestStates.ADD_ATTACHMENT,
         support_request=SupportRequestInCreation(
             description=default_string,
-            attachments_name=default_list,
+            attachments_names=default_list,
         ),
     )
     mocked_get_user_attachments_names.return_value = []
@@ -232,7 +232,7 @@ async def test__confirm_cancel_middleware__refuse_command__add_attachment_state(
         state=CreateSupportRequestStates.ADD_ATTACHMENT,
         support_request=SupportRequestInCreation(
             description=default_string,
-            attachments_name=default_list,
+            attachments_names=default_list,
         ),
     )
     mocked_get_user_attachments_names.return_value = default_list
