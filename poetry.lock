@@ -1988,29 +1988,29 @@ pyjwt = ">=2.0.0,<3.0.0"
 
 [[package]]
 name = "pybotx-fsm"
-version = "0.4.12"
+version = "0.6.1"
 description = "FSM middleware for using with pybotx"
 optional = false
-python-versions = ">=3.8,<3.12"
+python-versions = "<3.14,>=3.9"
 groups = ["main"]
 files = [
-    {file = "pybotx_fsm-0.4.12-py3-none-any.whl", hash = "sha256:f55eb1275d29d8620867f8003671609efb60ea14e0329fc0457aaf54434902dc"},
-    {file = "pybotx_fsm-0.4.12.tar.gz", hash = "sha256:7c5b8d69d82e0f8c5221a98799eedffbff184f093624a95fb5717badb50bc894"},
+    {file = "pybotx_fsm-0.6.1-py3-none-any.whl", hash = "sha256:8db44718b60b048d607b9e0025beeda27c1c38d3c75e53a819ccca12c080fe99"},
+    {file = "pybotx_fsm-0.6.1.tar.gz", hash = "sha256:dbab31c61a8eb831a2ff96a9a1ff43ec9320fb2d7b505e52f3db50e20565db70"},
 ]
 
 [package.dependencies]
-pybotx = ">=0.44.1"
+pybotx = ">=0.75.0"
 
 [[package]]
 name = "pybotx-smart-logger"
-version = "0.10.1"
+version = "0.11.0"
 description = "Shows logs when you need it"
 optional = false
-python-versions = ">=3.8,<3.12"
+python-versions = "<3.14,>=3.9"
 groups = ["main"]
 files = [
-    {file = "pybotx_smart_logger-0.10.1-py3-none-any.whl", hash = "sha256:dea25a90d3bc857a997e0598d2f224520dfe54b89cabc2f2f7a4411d471c4ba5"},
-    {file = "pybotx_smart_logger-0.10.1.tar.gz", hash = "sha256:025018701e206cda84453a5379a0b890ac51588bd1555561b307c432ce6636be"},
+    {file = "pybotx_smart_logger-0.11.0-py3-none-any.whl", hash = "sha256:4320e53542911f78e003fd32026d26f313c5dbf94606fa8d417c6e952df82b05"},
+    {file = "pybotx_smart_logger-0.11.0.tar.gz", hash = "sha256:550f4b1686c17e6ea738a92e1df7d999d0802f11aa5bca49834d5c3a3bb14d78"},
 ]
 
 [package.dependencies]
@@ -2930,5 +2930,5 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.9,<3.12"
-content-hash = "a25b1ba13c593f5fd11aafbd969fb5666433703c7e8d78812fda6f18be952f51"
+python-versions = ">=3.9,<3.14"
+content-hash = "9688af317048653eafee2065a03cad663c8e4f32244a5ea639da94863e0ec73d"
