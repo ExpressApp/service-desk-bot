@@ -43,4 +43,4 @@ ARG CI_COMMIT_SHA=""
 ENV GIT_COMMIT_SHA=${CI_COMMIT_SHA}
 
 CMD alembic upgrade head && \
-   gunicorn "app.main:get_application()" --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0
+   gunicorn "app.main:get_application()" --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0 --workers ${WORKER_COUNT}
