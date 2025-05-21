@@ -16,7 +16,7 @@ pybotx-fsm = "~0.6.1"
 
 
 fastapi = "~0.115.12"
-uvicorn = { version = "~0.17.5", extras = ["standart"] }
+uvicorn = { version = "~0.17.5", extras = ["standard"] }
 gunicorn = "~23.0.0"
 setuptools = "~77.0.1"
 loguru = ">=0.6.0,<0.7.0"
