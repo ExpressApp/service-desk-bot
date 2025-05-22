@@ -57,8 +57,6 @@ class AppSettings(BaseSettings):  # noqa: WPS338
     SHOW_SENDER_NAME_IN_EMAIL_TITLE: bool | None = True
     EMAIL_TITLE: str = "Обращение по eXpress"
     SHOW_SENDER_PHONE_IN_EMAIL_BODY: bool | None = True
-    # botX
-    VERIFY_REQUEST: bool = True
 
     # exchange:
     MAIL_SERVER: str
