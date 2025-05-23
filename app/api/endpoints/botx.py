@@ -29,7 +29,7 @@ async def command_handler(request: Request, bot: Bot = bot_dependency) -> JSONRe
         bot.async_execute_raw_bot_command(
             await request.json(),
             request_headers=request.headers,
-            verify_request=settings.VERIFY_SSL
+            verify_request=settings.VERIFY_SSL,
         )
     except ValueError:
         error_label = "Bot command validation error"
