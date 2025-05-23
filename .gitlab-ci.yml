@@ -158,6 +158,7 @@ test:
   before_script:
     - *install_dependencies
   script:
+    - export VERIFY_SSL=false
     - poetry run pytest --cov-config=setup.cfg
   coverage: '/Total coverage: \d\d\d.\d\d%/'
 
