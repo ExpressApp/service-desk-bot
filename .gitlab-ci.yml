@@ -22,6 +22,7 @@
     -e SENDER_EMAIL="$SENDER_EMAIL"
     -e RECIPIENT_EMAIL="$RECIPIENT_EMAIL"
     -e APP_NAME="$APP_NAME"
+    -e WORKER_COUNT="$WORKER_COUNT"
     -e SHOW_SENDER_NAME_IN_EMAIL_TITLE="$SHOW_SENDER_NAME_IN_EMAIL_TITLE"
     -e EMAIL_TITLE="$EMAIL_TITLE"
     -e SHOW_SENDER_PHONE_IN_EMAIL_BODY="$SHOW_SENDER_PHONE_IN_EMAIL_BODY"
@@ -59,7 +60,7 @@
   - echo -e "machine ${GIT_HOST}\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
   - pip install -q poetry
   - poetry config virtualenvs.in-project true
-  - poetry install
+  - poetry lock && poetry install --no-root
 
 .cache_dependencies: &cache_dependencies
   key:
@@ -153,9 +154,11 @@ test:
     BOT_CREDENTIALS: cts.example.com@secret@123e4567-e89b-12d3-a456-426655440000
     POSTGRES_DSN: postgres://postgres:postgres@postgres/postgres
     REDIS_DSN: redis://redis/0
+    VERIFY_SSL: false
   before_script:
     - *install_dependencies
   script:
+    - export VERIFY_SSL=false
     - poetry run pytest --cov-config=setup.cfg
   coverage: '/Total coverage: \d\d\d.\d\d%/'
 

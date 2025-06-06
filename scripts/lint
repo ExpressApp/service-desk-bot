@@ -5,5 +5,5 @@ set -ex
 black --check --diff app tests
 isort --profile black --check-only app tests
 
-mypy app tests
+mypy app tests --show-traceback
 flake8 app tests

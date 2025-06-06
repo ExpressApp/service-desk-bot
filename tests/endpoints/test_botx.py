@@ -2,14 +2,12 @@ from http import HTTPStatus
 from typing import Dict
 from uuid import UUID
 
-import respx
 from fastapi.testclient import TestClient
 from pybotx import Bot
 
 from app.main import get_application
 
 
-@respx.mock
 def test__web_app__bot_status_response_ok(
     bot_id: UUID,
     bot: Bot,
@@ -51,7 +49,6 @@ def test__web_app__bot_status_response_ok(
     }
 
 
-@respx.mock
 def test__web_app__bot_status_unknown_bot_response_service_unavailable(
     bot_id: UUID,
     bot: Bot,
@@ -77,7 +74,6 @@ def test__web_app__bot_status_unknown_bot_response_service_unavailable(
     assert status_message == "Unknown bot_id: f3e176d5-ff46-4b18-b260-25008338c06e"
 
 
-@respx.mock
 def test__web_app__bot_status_without_parameters_response_bad_request(
     bot_id: UUID,
     bot: Bot,
@@ -99,7 +95,6 @@ def test__web_app__bot_status_without_parameters_response_bad_request(
     assert status_message == "Invalid params"
 
 
-@respx.mock
 def test__web_app__bot_command_response_service_unavailable(
     bot_id: UUID,
     host: str,
@@ -128,7 +123,6 @@ def test__web_app__bot_command_response_service_unavailable(
     )
 
 
-@respx.mock
 def test__web_app__unknown_bot_response_service_unavailable(
     bot: Bot,
 ) -> None:
@@ -188,7 +182,6 @@ def test__web_app__unknown_bot_response_service_unavailable(
     )
 
 
-@respx.mock
 def test__web_app__unsupported_bot_api_version_service_unavailable(
     bot: Bot,
 ) -> None:

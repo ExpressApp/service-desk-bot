@@ -1,6 +1,6 @@
 import logging
 from http import HTTPStatus
-from typing import Any, AsyncGenerator, Callable, Generator
+from typing import AsyncGenerator, Callable, Generator
 from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
 
@@ -94,9 +94,7 @@ def mock_authorization() -> None:
 
 
 @pytest.fixture
-async def bot(
-    respx_mock: Callable[..., Any],  # We can't apply pytest mark to fixture
-) -> AsyncGenerator[Bot, None]:
+async def bot() -> AsyncGenerator[Bot, None]:
     fastapi_app = get_application()
 
     mock_authorization()

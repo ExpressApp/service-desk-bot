@@ -108,10 +108,18 @@ class AppSettings(BaseSettings):  # noqa: WPS338
         credentials_str = credentials_str.replace("|", "@")
         assert credentials_str.count("@") == 2, "Have you forgot to add `bot_id`?"
 
-        host, secret_key, bot_id = [
+        cts_url, secret_key, bot_id = [
             str_value.strip() for str_value in credentials_str.split("@")
         ]
-        return BotAccountWithSecret(id=UUID(bot_id), host=host, secret_key=secret_key)
+
+        if "://" not in cts_url:
+            cts_url = f"https://{cts_url}"
+
+        return BotAccountWithSecret(
+            id=UUID(bot_id),
+            cts_url=cts_url,  # type: ignore[arg-type]
+            secret_key=secret_key,
+        )
 
     @validator("BOT_CREDENTIALS", pre=True)
     @classmethod
@@ -140,4 +148,4 @@ class AppSettings(BaseSettings):  # noqa: WPS338
         return [UUID(huid) for huid in raw_huids.split(",")]
 
 
-settings = AppSettings()
+settings = AppSettings()  # type: ignore[call-arg]
