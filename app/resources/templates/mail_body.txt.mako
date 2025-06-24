@@ -8,14 +8,14 @@ E-mail: ${ ", ".join(user.emails) if user.emails else "-"}
 Должность: ${ user.company_position }
 Отдел: ${ user.department }
 Название клиентской платформы: ${ platform }
-% if platform in (client_platform_enum.IOS, client_platform_enum.ANDROID):
+% if platform in (client_platform_enum.IOS.value, client_platform_enum.ANDROID.value):
 Имя бренда производителя девайса: ${ message.sender.device.manufacturer }
 Модель девайса: ${ message.sender.device.device_name }
 ОС девайса + версия операционной системы: ${ message.sender.device.os }
-% elif platform == client_platform_enum.WEB:
+% elif platform == client_platform_enum.WEB.value:
 Версия браузера: ${ message.sender.device.device_name }
 ОС ПК + версия операционной системы: ${ message.sender.device.os }
-% elif platform == client_platform_enum.DESKTOP:
+% elif platform == client_platform_enum.DESKTOP.value:
 ОС ПК + версия операционной системы: ${ message.sender.device.os }
 % endif
 Версия приложения ${ app_name }: ${ message.sender.device.app_version }
